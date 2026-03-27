@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 type AsciiPreviewProps = {
   asciiArt: string;
   whatsappFormat: boolean;
+  isDownloadingMedia: boolean;
+  onDownloadPng: () => void;
 };
 
 function formatForWhatsapp(asciiArt: string): string {
@@ -14,7 +16,12 @@ function formatForWhatsapp(asciiArt: string): string {
   return `\`\`\`\n${asciiArt}\n\`\`\``;
 }
 
-export function AsciiPreview({ asciiArt, whatsappFormat }: AsciiPreviewProps) {
+export function AsciiPreview({
+  asciiArt,
+  whatsappFormat,
+  isDownloadingMedia,
+  onDownloadPng
+}: AsciiPreviewProps) {
   const [copyStatus, setCopyStatus] = useState<string>("");
 
   const outputText = useMemo(() => {
@@ -71,6 +78,14 @@ export function AsciiPreview({ asciiArt, whatsappFormat }: AsciiPreviewProps) {
             className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Baixar TXT
+          </button>
+          <button
+            type="button"
+            onClick={onDownloadPng}
+            disabled={!asciiArt || isDownloadingMedia}
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isDownloadingMedia ? "Gerando PNG..." : "Baixar PNG"}
           </button>
         </div>
       </div>

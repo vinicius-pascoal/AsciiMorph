@@ -6,6 +6,8 @@ type GifPreviewProps = {
   frames: string[];
   fps: number;
   whatsappFormat: boolean;
+  isDownloadingMedia: boolean;
+  onDownloadGif: () => void;
 };
 
 function formatForWhatsapp(asciiArt: string): string {
@@ -15,7 +17,13 @@ function formatForWhatsapp(asciiArt: string): string {
   return `\`\`\`\n${asciiArt}\n\`\`\``;
 }
 
-export function GifPreview({ frames, fps, whatsappFormat }: GifPreviewProps) {
+export function GifPreview({
+  frames,
+  fps,
+  whatsappFormat,
+  isDownloadingMedia,
+  onDownloadGif
+}: GifPreviewProps) {
   const [frameIndex, setFrameIndex] = useState(0);
   const [copyStatus, setCopyStatus] = useState<string>("");
 
@@ -121,6 +129,14 @@ export function GifPreview({ frames, fps, whatsappFormat }: GifPreviewProps) {
             className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Baixar todos os frames
+          </button>
+          <button
+            type="button"
+            onClick={onDownloadGif}
+            disabled={frames.length === 0 || isDownloadingMedia}
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {isDownloadingMedia ? "Gerando GIF..." : "Baixar GIF"}
           </button>
         </div>
       </div>

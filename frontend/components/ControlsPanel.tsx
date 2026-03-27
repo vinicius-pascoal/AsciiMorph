@@ -2,10 +2,12 @@ type ControlsPanelProps = {
   width: number;
   charset: string;
   invert: boolean;
+  whatsappFormat: boolean;
   mode: "image" | "gif";
   onWidthChange: (value: number) => void;
   onCharsetChange: (value: string) => void;
   onInvertChange: (value: boolean) => void;
+  onWhatsappFormatChange: (value: boolean) => void;
   onModeChange: (value: "image" | "gif") => void;
 };
 
@@ -13,10 +15,12 @@ export function ControlsPanel({
   width,
   charset,
   invert,
+  whatsappFormat,
   mode,
   onWidthChange,
   onCharsetChange,
   onInvertChange,
+  onWhatsappFormatChange,
   onModeChange
 }: ControlsPanelProps) {
   return (
@@ -64,6 +68,15 @@ export function ControlsPanel({
             onChange={(event) => onInvertChange(event.target.checked)}
           />
           <span>Inverter intensidade dos caracteres</span>
+        </label>
+
+        <label className="flex items-center gap-2 md:col-span-2">
+          <input
+            type="checkbox"
+            checked={whatsappFormat}
+            onChange={(event) => onWhatsappFormatChange(event.target.checked)}
+          />
+          <span>Formatar saída para WhatsApp (bloco monoespaçado)</span>
         </label>
       </div>
     </section>

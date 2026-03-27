@@ -16,6 +16,7 @@ export default function HomePage() {
   const [width, setWidth] = useState(120);
   const [charset, setCharset] = useState("@%#*+=-:. ");
   const [invert, setInvert] = useState(false);
+  const [whatsappFormat, setWhatsappFormat] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [asciiArt, setAsciiArt] = useState("");
@@ -80,6 +81,7 @@ export default function HomePage() {
             width={width}
             charset={charset}
             invert={invert}
+            whatsappFormat={whatsappFormat}
             onModeChange={(nextMode) => {
               setMode(nextMode);
               setFile(null);
@@ -90,6 +92,7 @@ export default function HomePage() {
             onWidthChange={setWidth}
             onCharsetChange={setCharset}
             onInvertChange={setInvert}
+            onWhatsappFormatChange={setWhatsappFormat}
           />
 
           <UploadForm mode={mode} file={file} isLoading={loading} onFileChange={setFile} onSubmit={handleConvert} />
@@ -100,7 +103,11 @@ export default function HomePage() {
         </div>
 
         <div className="lg:col-span-3">
-          {mode === "gif" ? <GifPreview frames={gifFrames} fps={gifFps} /> : <AsciiPreview asciiArt={asciiArt} />}
+          {mode === "gif" ? (
+            <GifPreview frames={gifFrames} fps={gifFps} whatsappFormat={whatsappFormat} />
+          ) : (
+            <AsciiPreview asciiArt={asciiArt} whatsappFormat={whatsappFormat} />
+          )}
         </div>
       </div>
     </main>

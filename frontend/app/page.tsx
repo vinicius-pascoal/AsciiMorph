@@ -114,7 +114,6 @@ export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
       <header className="rounded-3xl bg-ink px-6 py-8 text-white shadow-card sm:px-10">
-        <p className="text-xs uppercase tracking-[0.2em] text-cyan-200">AsciiMorph MVP</p>
         <h1 className="mt-3 text-3xl font-bold sm:text-5xl">Imagem e GIF para ASCII</h1>
         <p className="mt-3 max-w-2xl text-sm text-slate-200 sm:text-base">{heroSubtitle}</p>
       </header>

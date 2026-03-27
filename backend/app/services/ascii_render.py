@@ -5,27 +5,46 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 
 
+def _load_monospace_font() -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    candidates = [
+        "consola.ttf",
+        "cour.ttf",
+        "DejaVuSansMono.ttf",
+    ]
+
+    for candidate in candidates:
+        try:
+            return ImageFont.truetype(candidate, 14)
+        except OSError:
+            continue
+
+    return ImageFont.load_default()
+
+
 def _ascii_to_image(ascii_art: str) -> Image.Image:
     lines = ascii_art.splitlines() or [""]
     max_columns = max((len(line) for line in lines), default=0)
 
-    font = ImageFont.load_default()
-    left, top, right, bottom = font.getbbox("M")
+    font = _load_monospace_font()
+
+    # Use fixed-width cell metrics to avoid geometric distortion in exported media.
+    left, top, right, bottom = font.getbbox("@")
     char_width = max(1, right - left)
     char_height = max(1, bottom - top)
 
-    padding_x = 10
-    padding_y = 10
-
-    width = max(1, max_columns * char_width + (padding_x * 2))
-    height = max(1, len(lines) * char_height + (padding_y * 2))
+    width = max(1, max_columns * char_width)
+    height = max(1, len(lines) * char_height)
 
     image = Image.new("RGB", (width, height), (8, 10, 18))
     draw = ImageDraw.Draw(image)
 
-    for idx, line in enumerate(lines):
-        y = padding_y + idx * char_height
-        draw.text((padding_x, y), line, fill=(236, 239, 244), font=font)
+    for row, line in enumerate(lines):
+        y = row * char_height
+        for col, char in enumerate(line):
+            if char == " ":
+                continue
+            x = col * char_width
+            draw.text((x, y), char, fill=(236, 239, 244), font=font)
 
     return image
 

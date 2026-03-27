@@ -16,6 +16,7 @@ MVP do **AsciiMorph** para converter imagens e GIFs em arte ASCII.
 
 - Node.js 20+
 - Python 3.11+
+- Dependências Python instaladas via `requirements.txt` (Pillow com faixa de versão compatível)
 
 ## Rodando o backend
 

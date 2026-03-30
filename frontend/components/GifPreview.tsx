@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+type FeedbackType = "success" | "error" | "info";
+
 type GifPreviewProps = {
   frames: string[];
   fps: number;
   whatsappFormat: boolean;
   isDownloadingMedia: boolean;
-  onDownloadGif: () => void;
+  onDownloadGif: () => Promise<void>;
 };
 
 function formatForWhatsapp(asciiArt: string): string {
@@ -25,7 +27,7 @@ export function GifPreview({
   onDownloadGif
 }: GifPreviewProps) {
   const [frameIndex, setFrameIndex] = useState(0);
-  const [copyStatus, setCopyStatus] = useState<string>("");
+  const [feedback, setFeedback] = useState<{ type: FeedbackType; message: string } | null>(null);
 
   const intervalMs = useMemo(() => {
     if (fps <= 0) {
@@ -60,9 +62,9 @@ export function GifPreview({
 
     try {
       await navigator.clipboard.writeText(outputText);
-      setCopyStatus("Frame atual copiado para a area de transferencia.");
+      setFeedback({ type: "success", message: "Frame ASCII copiado para a area de transferencia." });
     } catch {
-      setCopyStatus("Nao foi possivel copiar automaticamente.");
+      setFeedback({ type: "error", message: "Nao foi possivel copiar automaticamente." });
     }
   }
 
@@ -78,6 +80,7 @@ export function GifPreview({
     anchor.download = `ascii-gif-frame-${frameIndex + 1}.txt`;
     anchor.click();
     URL.revokeObjectURL(objectUrl);
+    setFeedback({ type: "success", message: "Download do frame TXT iniciado." });
   }
 
   function handleDownloadAllFrames() {
@@ -99,7 +102,48 @@ export function GifPreview({
     anchor.download = "ascii-gif-frames.txt";
     anchor.click();
     URL.revokeObjectURL(objectUrl);
+    setFeedback({ type: "success", message: "Download de todos os frames iniciado." });
   }
+
+  async function handleDownloadGifClick() {
+    if (frames.length === 0 || isDownloadingMedia) {
+      return;
+    }
+
+    setFeedback({ type: "info", message: "Gerando GIF ASCII..." });
+    try {
+      await onDownloadGif();
+      setFeedback({ type: "success", message: "Download do GIF iniciado." });
+    } catch {
+      setFeedback({ type: "error", message: "Nao foi possivel gerar o GIF." });
+    }
+  }
+
+  useEffect(() => {
+    if (!feedback) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setFeedback(null), 2400);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
+
+  const feedbackStyle =
+    feedback?.type === "success"
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : feedback?.type === "error"
+        ? "border-red-200 bg-red-50 text-red-700"
+        : "border-cyan-200 bg-cyan-50 text-cyan-700";
+
+  const feedbackText = feedback?.message ?? (isDownloadingMedia ? "Gerando GIF ASCII..." : "");
+  const shouldShowFeedback = Boolean(feedbackText);
+  const isInfoFromExternalLoading = !feedback && isDownloadingMedia;
+  const externalLoadingStyle = "border-cyan-200 bg-cyan-50 text-cyan-700";
+  const finalFeedbackStyle = isInfoFromExternalLoading ? externalLoadingStyle : feedbackStyle;
+  const feedbackAnimation = "animate-[fadeIn_180ms_ease-out]";
+  const statusClassName = `mt-1 rounded-lg border px-3 py-2 text-sm font-medium ${finalFeedbackStyle} ${feedbackAnimation}`;
+
+  const gifDownloadLabel = isDownloadingMedia ? "Gerando GIF..." : "Baixar GIF";
 
   return (
     <section className="rounded-2xl bg-panel p-6 shadow-card">
@@ -132,11 +176,11 @@ export function GifPreview({
           </button>
           <button
             type="button"
-            onClick={onDownloadGif}
+            onClick={handleDownloadGifClick}
             disabled={frames.length === 0 || isDownloadingMedia}
             className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isDownloadingMedia ? "Gerando GIF..." : "Baixar GIF"}
+            {gifDownloadLabel}
           </button>
         </div>
       </div>
@@ -146,7 +190,7 @@ export function GifPreview({
       <p className="mt-3 text-sm text-slate-600">
         Frame {frames.length ? frameIndex + 1 : 0} de {frames.length} | {fps} FPS
       </p>
-      {copyStatus ? <p className="mt-1 text-sm text-slate-600">{copyStatus}</p> : null}
+      {shouldShowFeedback ? <p className={statusClassName}>{feedbackText}</p> : null}
     </section>
   );
 }

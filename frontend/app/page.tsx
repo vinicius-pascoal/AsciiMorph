@@ -106,6 +106,7 @@ export default function HomePage() {
     } catch (downloadError) {
       const message = downloadError instanceof Error ? downloadError.message : "Erro ao baixar arquivo.";
       setError(message);
+      throw downloadError;
     } finally {
       setDownloadingMedia(false);
     }

@@ -22,7 +22,8 @@ def _load_monospace_font() -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
 
 
 def _ascii_to_image(ascii_art: str) -> Image.Image:
-    lines = ascii_art.splitlines() or [""]
+    raw_lines = ascii_art.splitlines() or [""]
+    lines = [line.rstrip(" ") for line in raw_lines]
     max_columns = max((len(line) for line in lines), default=0)
 
     font = _load_monospace_font()
@@ -39,12 +40,10 @@ def _ascii_to_image(ascii_art: str) -> Image.Image:
     draw = ImageDraw.Draw(image)
 
     for row, line in enumerate(lines):
+        if not line:
+            continue
         y = row * char_height
-        for col, char in enumerate(line):
-            if char == " ":
-                continue
-            x = col * char_width
-            draw.text((x, y), char, fill=(236, 239, 244), font=font)
+        draw.text((0, y), line, fill=(236, 239, 244), font=font)
 
     return image
 
@@ -61,16 +60,25 @@ def ascii_frames_to_gif_bytes(frames: list[str], fps: int) -> BytesIO:
     if not frames:
         raise ValueError("No ASCII frames to render")
 
-    rendered = [_ascii_to_image(frame).convert(
-        "P", palette=Image.Palette.ADAPTIVE) for frame in frames]
+    rendered_rgb = [_ascii_to_image(frame) for frame in frames]
+
+    max_width = max(frame.width for frame in rendered_rgb)
+    max_height = max(frame.height for frame in rendered_rgb)
+
+    normalized: list[Image.Image] = []
+    for frame in rendered_rgb:
+        canvas = Image.new("RGB", (max_width, max_height), (8, 10, 18))
+        canvas.paste(frame, (0, 0))
+        normalized.append(canvas.convert("P", palette=Image.Palette.ADAPTIVE))
+
     duration_ms = max(1, int(round(1000 / max(fps, 1))))
 
     output = BytesIO()
-    rendered[0].save(
+    normalized[0].save(
         output,
         format="GIF",
         save_all=True,
-        append_images=rendered[1:],
+        append_images=normalized[1:],
         duration=duration_ms,
         loop=0,
         optimize=False,

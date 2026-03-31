@@ -78,8 +78,9 @@ export default function HomePage() {
 
   async function handleDownloadMedia() {
     if (!file) {
-      setError("Selecione um arquivo antes de baixar.");
-      return;
+      const message = "Selecione e converta um arquivo antes de baixar.";
+      setError(message);
+      throw new Error(message);
     }
 
     setDownloadingMedia(true);

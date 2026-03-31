@@ -142,6 +142,7 @@ async def render_gif_ascii_gif(
             width=width,
             charset=charset,
             invert=invert,
+            max_frames=120,
         )
         gif_bytes = ascii_frames_to_gif_bytes(frames_ascii, fps)
     except ValueError as error:

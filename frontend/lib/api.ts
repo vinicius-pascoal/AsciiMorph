@@ -28,6 +28,7 @@ export type GifResult = {
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const DOWNLOAD_TIMEOUT_MS = 120000;
 
 type DownloadParams = {
   file: File;
@@ -66,11 +67,30 @@ function buildConvertFormData(params: DownloadParams): FormData {
   return formData;
 }
 
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Tempo limite excedido ao gerar arquivo. Tente reduzir a largura ou usar um GIF menor.");
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 export async function downloadAsciiPng(params: DownloadParams): Promise<Blob> {
-  const response = await fetch(`${API_BASE}/convert/image/render`, {
+  const response = await fetchWithTimeout(`${API_BASE}/convert/image/render`, {
     method: "POST",
     body: buildConvertFormData(params)
-  });
+  }, DOWNLOAD_TIMEOUT_MS);
 
   if (!response.ok) {
     const payload = (await response.json().catch(() => null)) as { detail?: string } | null;
@@ -81,10 +101,10 @@ export async function downloadAsciiPng(params: DownloadParams): Promise<Blob> {
 }
 
 export async function downloadAsciiGif(params: DownloadParams): Promise<Blob> {
-  const response = await fetch(`${API_BASE}/convert/gif/render`, {
+  const response = await fetchWithTimeout(`${API_BASE}/convert/gif/render`, {
     method: "POST",
     body: buildConvertFormData(params)
-  });
+  }, DOWNLOAD_TIMEOUT_MS);
 
   if (!response.ok) {
     const payload = (await response.json().catch(() => null)) as { detail?: string } | null;

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
 type FeedbackType = "success" | "error" | "info";
 
@@ -29,7 +29,9 @@ export function AsciiPreview({
 }: AsciiPreviewProps) {
   const [feedback, setFeedback] = useState<{ type: FeedbackType; message: string } | null>(null);
   const [splitRatio, setSplitRatio] = useState(50);
+  const [isDraggingSplit, setIsDraggingSplit] = useState(false);
   const [overlayScale, setOverlayScale] = useState(1);
+  const comparisonViewportRef = useRef<HTMLDivElement | null>(null);
   const overlayViewportRef = useRef<HTMLDivElement | null>(null);
   const overlayPreRef = useRef<HTMLPreElement | null>(null);
 
@@ -41,6 +43,48 @@ export function AsciiPreview({
   }, [asciiArt, whatsappFormat]);
 
   const showComparison = Boolean(originalImageUrl) && Boolean(asciiArt);
+
+  function updateSplitFromClientX(clientX: number) {
+    const viewport = comparisonViewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const bounds = viewport.getBoundingClientRect();
+    if (!bounds.width) {
+      return;
+    }
+
+    const nextRatio = ((clientX - bounds.left) / bounds.width) * 100;
+    const clampedRatio = Math.max(0, Math.min(100, nextRatio));
+    setSplitRatio(Math.round(clampedRatio));
+  }
+
+  function handleComparisonPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsDraggingSplit(true);
+    updateSplitFromClientX(event.clientX);
+  }
+
+  function handleComparisonPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!isDraggingSplit) {
+      return;
+    }
+
+    updateSplitFromClientX(event.clientX);
+  }
+
+  function handleComparisonPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setIsDraggingSplit(false);
+  }
 
   async function handleCopy() {
     if (!outputText) {
@@ -210,23 +254,17 @@ export function AsciiPreview({
         <div className="mb-4 rounded-lg border border-slate-200 bg-white p-3">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <h3 className="text-sm font-semibold text-slate-800">Comparacao com divisor</h3>
-            <span className="text-xs text-slate-500">Original na direita, ASCII na esquerda</span>
+            <span className="text-xs text-slate-500">Arraste na imagem para mover o divisor</span>
           </div>
 
-          <label className="mb-3 block text-xs font-medium text-slate-600" htmlFor="comparison-split">
-            Divisao do recorte: {splitRatio}%
-          </label>
-          <input
-            id="comparison-split"
-            type="range"
-            min={0}
-            max={100}
-            value={splitRatio}
-            onChange={(event) => setSplitRatio(Number(event.target.value))}
-            className="mb-3 w-full accent-emerald-600"
-          />
-
-          <div className="relative h-72 overflow-hidden rounded-md border border-slate-200 bg-slate-100 sm:h-80">
+          <div
+            ref={comparisonViewportRef}
+            className={`relative h-72 touch-none select-none overflow-hidden rounded-md border border-slate-200 bg-slate-100 sm:h-80 ${isDraggingSplit ? "cursor-ew-resize" : "cursor-col-resize"}`}
+            onPointerDown={handleComparisonPointerDown}
+            onPointerMove={handleComparisonPointerMove}
+            onPointerUp={handleComparisonPointerUp}
+            onPointerCancel={handleComparisonPointerUp}
+          >
             <div className="absolute inset-0">
               <Image
                 src={originalImageUrl ?? ""}
@@ -251,19 +289,21 @@ export function AsciiPreview({
             </div>
 
             <div
-              className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-emerald-400 shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+              className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-accent shadow-[0_0_0_1px_rgba(14,116,144,0.35)]"
               style={{ left: `${splitRatio}%` }}
             />
             <div
-              className="pointer-events-none absolute top-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-400 bg-white/90"
+              className="pointer-events-none absolute top-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-accent bg-canvas/95 shadow-[0_2px_8px_rgba(15,23,42,0.16)]"
               style={{ left: `${splitRatio}%` }}
             />
           </div>
         </div>
       ) : null}
-      <div className="max-h-[520px] overflow-auto rounded-lg bg-slate-950 p-4 text-[8px] leading-none text-slate-100 sm:text-[10px]">
-        <pre>{preText}</pre>
-      </div>
+      {!showComparison ? (
+        <div className="max-h-[520px] overflow-auto rounded-lg bg-slate-950 p-4 text-[8px] leading-none text-slate-100 sm:text-[10px]">
+          <pre>{preText}</pre>
+        </div>
+      ) : null}
       {showStatus ? <p className={statusClassName}>{statusMessage}</p> : null}
     </section>
   );

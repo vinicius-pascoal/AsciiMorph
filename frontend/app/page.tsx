@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { AsciiPreview } from "../components/AsciiPreview";
 import { ControlsPanel } from "../components/ControlsPanel";
@@ -23,6 +23,21 @@ export default function HomePage() {
   const [asciiArt, setAsciiArt] = useState("");
   const [gifFrames, setGifFrames] = useState<string[]>([]);
   const [gifFps, setGifFps] = useState(10);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (mode !== "image" || !file) {
+      setOriginalImageUrl(null);
+      return;
+    }
+
+    const nextUrl = URL.createObjectURL(file);
+    setOriginalImageUrl(nextUrl);
+
+    return () => {
+      URL.revokeObjectURL(nextUrl);
+    };
+  }, [file, mode]);
 
   const heroSubtitle = useMemo(() => {
     if (mode === "gif") {
@@ -160,6 +175,7 @@ export default function HomePage() {
           ) : (
             <AsciiPreview
               asciiArt={asciiArt}
+              originalImageUrl={originalImageUrl}
               whatsappFormat={whatsappFormat}
               isDownloadingMedia={downloadingMedia}
               onDownloadPng={handleDownloadMedia}

@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type FeedbackType = "success" | "error" | "info";
 
 type AsciiPreviewProps = {
   asciiArt: string;
+  originalImageUrl: string | null;
   whatsappFormat: boolean;
   isDownloadingMedia: boolean;
   onDownloadPng: () => Promise<void>;
@@ -20,11 +22,16 @@ function formatForWhatsapp(asciiArt: string): string {
 
 export function AsciiPreview({
   asciiArt,
+  originalImageUrl,
   whatsappFormat,
   isDownloadingMedia,
   onDownloadPng
 }: AsciiPreviewProps) {
   const [feedback, setFeedback] = useState<{ type: FeedbackType; message: string } | null>(null);
+  const [splitRatio, setSplitRatio] = useState(50);
+  const [overlayScale, setOverlayScale] = useState(1);
+  const overlayViewportRef = useRef<HTMLDivElement | null>(null);
+  const overlayPreRef = useRef<HTMLPreElement | null>(null);
 
   const outputText = useMemo(() => {
     if (!whatsappFormat) {
@@ -32,6 +39,8 @@ export function AsciiPreview({
     }
     return formatForWhatsapp(asciiArt);
   }, [asciiArt, whatsappFormat]);
+
+  const showComparison = Boolean(originalImageUrl) && Boolean(asciiArt);
 
   async function handleCopy() {
     if (!outputText) {
@@ -83,6 +92,43 @@ export function AsciiPreview({
     const timer = window.setTimeout(() => setFeedback(null), 2400);
     return () => window.clearTimeout(timer);
   }, [feedback]);
+
+  useEffect(() => {
+    if (!showComparison) {
+      return;
+    }
+
+    const viewport = overlayViewportRef.current;
+    const pre = overlayPreRef.current;
+    if (!viewport || !pre) {
+      return;
+    }
+
+    const calculateScale = () => {
+      const viewportWidth = viewport.clientWidth;
+      const viewportHeight = viewport.clientHeight;
+      const contentWidth = pre.scrollWidth;
+      const contentHeight = pre.scrollHeight;
+
+      if (!viewportWidth || !viewportHeight || !contentWidth || !contentHeight) {
+        setOverlayScale(1);
+        return;
+      }
+
+      const fitWidth = viewportWidth / contentWidth;
+      const fitHeight = viewportHeight / contentHeight;
+      const nextScale = Math.min(fitWidth, fitHeight, 1);
+      setOverlayScale(nextScale);
+    };
+
+    calculateScale();
+    const resizeObserver = new ResizeObserver(calculateScale);
+    resizeObserver.observe(viewport);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [asciiArt, showComparison, splitRatio]);
 
   const feedbackStyle =
     feedback?.type === "success"
@@ -160,6 +206,61 @@ export function AsciiPreview({
           </button>
         </div>
       </div>
+      {showComparison ? (
+        <div className="mb-4 rounded-lg border border-slate-200 bg-white p-3">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-slate-800">Comparacao com divisor</h3>
+            <span className="text-xs text-slate-500">Original na direita, ASCII na esquerda</span>
+          </div>
+
+          <label className="mb-3 block text-xs font-medium text-slate-600" htmlFor="comparison-split">
+            Divisao do recorte: {splitRatio}%
+          </label>
+          <input
+            id="comparison-split"
+            type="range"
+            min={0}
+            max={100}
+            value={splitRatio}
+            onChange={(event) => setSplitRatio(Number(event.target.value))}
+            className="mb-3 w-full accent-emerald-600"
+          />
+
+          <div className="relative h-72 overflow-hidden rounded-md border border-slate-200 bg-slate-100 sm:h-80">
+            <div className="absolute inset-0">
+              <Image
+                src={originalImageUrl ?? ""}
+                alt="Imagem original selecionada"
+                width={1200}
+                height={800}
+                unoptimized
+                className="h-full w-full object-contain"
+              />
+            </div>
+
+            <div className="absolute inset-0 overflow-hidden bg-slate-950/95" style={{ clipPath: `inset(0 ${100 - splitRatio}% 0 0)` }}>
+              <div ref={overlayViewportRef} className="flex h-full w-full items-center justify-center overflow-hidden p-2 text-[8px] leading-none text-slate-100 sm:text-[10px]">
+                <pre
+                  ref={overlayPreRef}
+                  className="origin-center"
+                  style={{ transform: `scale(${overlayScale})` }}
+                >
+                  {asciiArt}
+                </pre>
+              </div>
+            </div>
+
+            <div
+              className="pointer-events-none absolute inset-y-0 z-10 w-0.5 bg-emerald-400 shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+              style={{ left: `${splitRatio}%` }}
+            />
+            <div
+              className="pointer-events-none absolute top-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-emerald-400 bg-white/90"
+              style={{ left: `${splitRatio}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
       <div className="max-h-[520px] overflow-auto rounded-lg bg-slate-950 p-4 text-[8px] leading-none text-slate-100 sm:text-[10px]">
         <pre>{preText}</pre>
       </div>

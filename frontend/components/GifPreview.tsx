@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type FeedbackType = "success" | "error" | "info";
 
@@ -28,6 +28,9 @@ export function GifPreview({
 }: GifPreviewProps) {
   const [frameIndex, setFrameIndex] = useState(0);
   const [feedback, setFeedback] = useState<{ type: FeedbackType; message: string } | null>(null);
+  const [previewScale, setPreviewScale] = useState(1);
+  const previewViewportRef = useRef<HTMLDivElement | null>(null);
+  const previewPreRef = useRef<HTMLPreElement | null>(null);
 
   const intervalMs = useMemo(() => {
     if (fps <= 0) {
@@ -128,6 +131,41 @@ export function GifPreview({
     return () => window.clearTimeout(timer);
   }, [feedback]);
 
+  useEffect(() => {
+    const viewport = previewViewportRef.current;
+    const pre = previewPreRef.current;
+
+    if (!viewport || !pre || !outputText) {
+      setPreviewScale(1);
+      return;
+    }
+
+    const updateScale = () => {
+      const availableWidth = viewport.clientWidth - 24;
+      const availableHeight = viewport.clientHeight - 24;
+      const contentWidth = pre.scrollWidth;
+      const contentHeight = pre.scrollHeight;
+
+      if (availableWidth <= 0 || availableHeight <= 0 || contentWidth <= 0 || contentHeight <= 0) {
+        setPreviewScale(1);
+        return;
+      }
+
+      const nextScale = Math.min(1, availableWidth / contentWidth, availableHeight / contentHeight);
+      setPreviewScale((current) => (Math.abs(current - nextScale) > 0.01 ? nextScale : current));
+    };
+
+    updateScale();
+
+    const resizeObserver = new ResizeObserver(updateScale);
+    resizeObserver.observe(viewport);
+    resizeObserver.observe(pre);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [outputText, frameIndex]);
+
   const feedbackStyle =
     feedback?.type === "success"
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
@@ -184,8 +222,19 @@ export function GifPreview({
           </button>
         </div>
       </div>
-      <div className="max-h-[520px] overflow-auto rounded-lg bg-slate-950 p-4 text-[8px] leading-none text-slate-100 sm:text-[10px]">
-        <pre>{outputText || "Os frames ASCII aparecerao aqui."}</pre>
+      <div
+        ref={previewViewportRef}
+        className="relative h-[520px] overflow-hidden rounded-lg bg-slate-950 p-4 text-[8px] leading-none text-slate-100 sm:text-[10px]"
+      >
+        <div className="absolute inset-4 flex items-center justify-center overflow-hidden">
+          <pre
+            ref={previewPreRef}
+            className="origin-center whitespace-pre"
+            style={{ transform: `scale(${previewScale})` }}
+          >
+            {outputText || "Os frames ASCII aparecerao aqui."}
+          </pre>
+        </div>
       </div>
       <p className="mt-3 text-sm text-slate-600">
         Frame {frames.length ? frameIndex + 1 : 0} de {frames.length} | {fps} FPS

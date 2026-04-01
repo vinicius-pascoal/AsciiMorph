@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { AsciiPreview } from "../components/AsciiPreview";
-import { ControlsPanel } from "../components/ControlsPanel";
+import { ControlsPanel, CustomStylePreset } from "../components/ControlsPanel";
 import { GifPreview } from "../components/GifPreview";
 import { UploadForm } from "../components/UploadForm";
 import { convertToAscii, downloadAsciiGif, downloadAsciiPng, GifResult, ImageResult } from "../lib/api";
 
 type Mode = "image" | "gif";
+const CUSTOM_PRESETS_STORAGE_KEY = "ascii-morph-custom-style-presets";
 
 export default function HomePage() {
   const [mode, setMode] = useState<Mode>("image");
@@ -25,6 +26,39 @@ export default function HomePage() {
   const [gifFrames, setGifFrames] = useState<string[]>([]);
   const [gifFps, setGifFps] = useState(10);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [customPresets, setCustomPresets] = useState<CustomStylePreset[]>([]);
+
+  useEffect(() => {
+    try {
+      const rawValue = window.localStorage.getItem(CUSTOM_PRESETS_STORAGE_KEY);
+      if (!rawValue) {
+        return;
+      }
+
+      const parsedValue = JSON.parse(rawValue) as CustomStylePreset[];
+      if (!Array.isArray(parsedValue)) {
+        return;
+      }
+
+      const sanitizedPresets = parsedValue.filter((preset) => {
+        return (
+          typeof preset?.id === "string" &&
+          typeof preset?.name === "string" &&
+          typeof preset?.charset === "string" &&
+          typeof preset?.invert === "boolean" &&
+          typeof preset?.whatsappFormat === "boolean"
+        );
+      });
+
+      setCustomPresets(sanitizedPresets);
+    } catch {
+      setCustomPresets([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(customPresets));
+  }, [customPresets]);
 
   useEffect(() => {
     if (mode !== "image" || !file) {
@@ -132,6 +166,32 @@ export default function HomePage() {
     }
   }
 
+  function handleSaveCustomPreset(name: string) {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      return;
+    }
+
+    const nextPreset: CustomStylePreset = {
+      id: `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`,
+      name: trimmedName,
+      charset,
+      invert,
+      whatsappFormat
+    };
+
+    setCustomPresets((currentPresets) => {
+      const withoutSameName = currentPresets.filter((preset) => {
+        return preset.name.toLowerCase() !== trimmedName.toLowerCase();
+      });
+      return [nextPreset, ...withoutSameName].slice(0, 10);
+    });
+  }
+
+  function handleDeleteCustomPreset(id: string) {
+    setCustomPresets((currentPresets) => currentPresets.filter((preset) => preset.id !== id));
+  }
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-10 sm:px-6 lg:px-8">
       <header className="rounded-3xl bg-ink px-6 py-8 text-white shadow-card sm:px-10">
@@ -148,6 +208,7 @@ export default function HomePage() {
             invert={invert}
             autoQuality={autoQuality}
             whatsappFormat={whatsappFormat}
+            customPresets={customPresets}
             onModeChange={(nextMode) => {
               setMode(nextMode);
               setFile(null);
@@ -160,6 +221,8 @@ export default function HomePage() {
             onInvertChange={setInvert}
             onAutoQualityChange={setAutoQuality}
             onWhatsappFormatChange={setWhatsappFormat}
+            onSaveCustomPreset={handleSaveCustomPreset}
+            onDeleteCustomPreset={handleDeleteCustomPreset}
           />
 
           <UploadForm mode={mode} file={file} isLoading={loading} onFileChange={setFile} onSubmit={handleConvert} />

@@ -16,6 +16,7 @@ export default function HomePage() {
   const [width, setWidth] = useState(120);
   const [charset, setCharset] = useState("@%#*+=-:. ");
   const [invert, setInvert] = useState(false);
+  const [autoQuality, setAutoQuality] = useState(false);
   const [whatsappFormat, setWhatsappFormat] = useState(true);
   const [loading, setLoading] = useState(false);
   const [downloadingMedia, setDownloadingMedia] = useState(false);
@@ -61,6 +62,7 @@ export default function HomePage() {
         width,
         charset,
         invert,
+        autoQuality,
         mode
       });
 
@@ -107,7 +109,8 @@ export default function HomePage() {
           file,
           width,
           charset,
-          invert
+          invert,
+          autoQuality
         });
         triggerBlobDownload(blob, "ascii-image.png");
       } else {
@@ -115,7 +118,8 @@ export default function HomePage() {
           file,
           width,
           charset,
-          invert
+          invert,
+          autoQuality
         });
         triggerBlobDownload(blob, "ascii-animation.gif");
       }
@@ -142,6 +146,7 @@ export default function HomePage() {
             width={width}
             charset={charset}
             invert={invert}
+            autoQuality={autoQuality}
             whatsappFormat={whatsappFormat}
             onModeChange={(nextMode) => {
               setMode(nextMode);
@@ -153,6 +158,7 @@ export default function HomePage() {
             onWidthChange={setWidth}
             onCharsetChange={setCharset}
             onInvertChange={setInvert}
+            onAutoQualityChange={setAutoQuality}
             onWhatsappFormatChange={setWhatsappFormat}
           />
 

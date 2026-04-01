@@ -2,11 +2,13 @@ type ControlsPanelProps = {
   width: number;
   charset: string;
   invert: boolean;
+  autoQuality: boolean;
   whatsappFormat: boolean;
   mode: "image" | "gif";
   onWidthChange: (value: number) => void;
   onCharsetChange: (value: string) => void;
   onInvertChange: (value: boolean) => void;
+  onAutoQualityChange: (value: boolean) => void;
   onWhatsappFormatChange: (value: boolean) => void;
   onModeChange: (value: "image" | "gif") => void;
 };
@@ -43,11 +45,13 @@ export function ControlsPanel({
   width,
   charset,
   invert,
+  autoQuality,
   whatsappFormat,
   mode,
   onWidthChange,
   onCharsetChange,
   onInvertChange,
+  onAutoQualityChange,
   onWhatsappFormatChange,
   onModeChange
 }: ControlsPanelProps) {
@@ -85,6 +89,7 @@ export function ControlsPanel({
             max={300}
             value={width}
             onChange={(event) => onWidthChange(Number(event.target.value))}
+            disabled={autoQuality}
           />
         </label>
 
@@ -119,7 +124,17 @@ export function ControlsPanel({
             onChange={(event) => onCharsetChange(event.target.value)}
             className="rounded-lg border border-slate-300 px-3 py-2"
             placeholder="@%#*+=-:. "
+            disabled={autoQuality}
           />
+        </label>
+
+        <label className="flex items-center gap-2 md:col-span-2">
+          <input
+            type="checkbox"
+            checked={autoQuality}
+            onChange={(event) => onAutoQualityChange(event.target.checked)}
+          />
+          <span>Auto Quality (largura, charset e inversão automáticos)</span>
         </label>
 
         <label className="flex items-center gap-2 md:col-span-2">
@@ -127,6 +142,7 @@ export function ControlsPanel({
             type="checkbox"
             checked={invert}
             onChange={(event) => onInvertChange(event.target.checked)}
+            disabled={autoQuality}
           />
           <span>Inverter intensidade dos caracteres</span>
         </label>

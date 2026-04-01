@@ -11,6 +11,7 @@ Aplicacao web para converter imagens e GIFs em arte ASCII, com preview interativ
 - Conversao de imagem estaticas (PNG, JPG, JPEG, WEBP) para ASCII.
 - Conversao de GIF para ASCII frame a frame.
 - Presets de estilo ASCII: Terminal, Bold, Minimal, Retro e WhatsApp.
+- Modo Auto Quality para inferir largura, charset e inversao automaticamente.
 - Comparacao visual no preview com divisor arrastavel direto na imagem.
 - Download de saida em PNG ASCII (imagem) e GIF ASCII (animacao).
 - Copia rapida do texto ASCII para area de transferencia.
@@ -100,12 +101,14 @@ Se for publicar, ajuste o `frontend_origin` para o dominio real do frontend.
   - `width`: inteiro (20..300)
   - `charset`: string de caracteres para mapeamento
   - `invert`: `true/false`
+  - `auto_quality`: `true/false` (quando `true`, ignora `width`, `charset` e `invert` enviados)
 
 - `POST /api/v1/convert/gif`
   - `file`: `image/gif`
   - `width`: inteiro (20..300)
   - `charset`: string de caracteres para mapeamento
   - `invert`: `true/false`
+  - `auto_quality`: `true/false` (quando `true`, ignora `width`, `charset` e `invert` enviados)
 
 ### Render para download de midia
 

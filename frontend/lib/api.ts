@@ -5,6 +5,7 @@ export type ConvertParams = {
   width: number;
   charset: string;
   invert: boolean;
+  autoQuality: boolean;
   mode: ConvertMode;
 };
 
@@ -35,6 +36,7 @@ type DownloadParams = {
   width: number;
   charset: string;
   invert: boolean;
+  autoQuality: boolean;
 };
 
 export async function convertToAscii(params: ConvertParams): Promise<ImageResult | GifResult> {
@@ -43,6 +45,7 @@ export async function convertToAscii(params: ConvertParams): Promise<ImageResult
   formData.append("width", String(params.width));
   formData.append("charset", params.charset);
   formData.append("invert", String(params.invert));
+  formData.append("auto_quality", String(params.autoQuality));
 
   const endpoint = params.mode === "gif" ? "/convert/gif" : "/convert/image";
   const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -64,6 +67,7 @@ function buildConvertFormData(params: DownloadParams): FormData {
   formData.append("width", String(params.width));
   formData.append("charset", params.charset);
   formData.append("invert", String(params.invert));
+  formData.append("auto_quality", String(params.autoQuality));
   return formData;
 }
 

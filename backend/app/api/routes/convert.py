@@ -6,6 +6,7 @@ from PIL import Image, UnidentifiedImageError
 
 from app.schemas.responses import GifAsciiFrame, GifAsciiResponse, ImageAsciiResponse
 from app.services.ascii_render import ascii_frames_to_gif_bytes, ascii_to_png_bytes
+from app.services.auto_quality import infer_ascii_settings
 from app.services.gif_to_ascii import gif_to_ascii_frames
 from app.services.image_to_ascii import image_to_ascii
 
@@ -21,6 +22,7 @@ async def convert_image_to_ascii(
     width: int = Form(120),
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
+    auto_quality: bool = Form(False),
 ) -> ImageAsciiResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -31,6 +33,9 @@ async def convert_image_to_ascii(
     except UnidentifiedImageError as error:
         raise HTTPException(
             status_code=400, detail="Invalid image file") from error
+
+    if auto_quality:
+        width, charset, invert = infer_ascii_settings(image)
 
     try:
         ascii_art, out_width, out_height = image_to_ascii(
@@ -51,6 +56,7 @@ async def convert_gif_to_ascii(
     width: int = Form(120),
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
+    auto_quality: bool = Form(False),
 ) -> GifAsciiResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -61,6 +67,10 @@ async def convert_gif_to_ascii(
     except UnidentifiedImageError as error:
         raise HTTPException(
             status_code=400, detail="Invalid GIF file") from error
+
+    if auto_quality:
+        preview_frame = gif_image.convert("RGB")
+        width, charset, invert = infer_ascii_settings(preview_frame)
 
     try:
         frames_ascii, out_width, out_height, fps = gif_to_ascii_frames(
@@ -90,6 +100,7 @@ async def render_image_ascii_png(
     width: int = Form(120),
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
+    auto_quality: bool = Form(False),
 ) -> StreamingResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -100,6 +111,9 @@ async def render_image_ascii_png(
     except UnidentifiedImageError as error:
         raise HTTPException(
             status_code=400, detail="Invalid image file") from error
+
+    if auto_quality:
+        width, charset, invert = infer_ascii_settings(image)
 
     try:
         ascii_art, _, _ = image_to_ascii(
@@ -125,6 +139,7 @@ async def render_gif_ascii_gif(
     width: int = Form(120),
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
+    auto_quality: bool = Form(False),
 ) -> StreamingResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -135,6 +150,10 @@ async def render_gif_ascii_gif(
     except UnidentifiedImageError as error:
         raise HTTPException(
             status_code=400, detail="Invalid GIF file") from error
+
+    if auto_quality:
+        preview_frame = gif_image.convert("RGB")
+        width, charset, invert = infer_ascii_settings(preview_frame)
 
     try:
         frames_ascii, _, _, fps = gif_to_ascii_frames(

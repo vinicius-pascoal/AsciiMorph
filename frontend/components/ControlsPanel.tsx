@@ -19,6 +19,8 @@ type ControlsPanelProps = {
   layersTextCharset: string;
   layersTextEdgeThreshold: number;
   layersSubjectDeltaThreshold: number;
+  typographyMode: boolean;
+  typographyLetters: string;
   whatsappFormat: boolean;
   mode: "image" | "gif";
   customPresets: CustomStylePreset[];
@@ -40,6 +42,8 @@ type ControlsPanelProps = {
   onLayersTextCharsetChange: (value: string) => void;
   onLayersTextEdgeThresholdChange: (value: number) => void;
   onLayersSubjectDeltaThresholdChange: (value: number) => void;
+  onTypographyModeChange: (value: boolean) => void;
+  onTypographyLettersChange: (value: string) => void;
   onWhatsappFormatChange: (value: boolean) => void;
   onModeChange: (value: "image" | "gif") => void;
   onSaveCustomPreset: (name: string) => void;
@@ -101,6 +105,8 @@ export function ControlsPanel({
   layersTextCharset,
   layersTextEdgeThreshold,
   layersSubjectDeltaThreshold,
+  typographyMode,
+  typographyLetters,
   whatsappFormat,
   mode,
   customPresets,
@@ -122,6 +128,8 @@ export function ControlsPanel({
   onLayersTextCharsetChange,
   onLayersTextEdgeThresholdChange,
   onLayersSubjectDeltaThresholdChange,
+  onTypographyModeChange,
+  onTypographyLettersChange,
   onWhatsappFormatChange,
   onModeChange,
   onSaveCustomPreset,
@@ -282,6 +290,30 @@ export function ControlsPanel({
             disabled={autoQuality}
           />
         </label>
+
+        <label className="flex items-center gap-2 md:col-span-2">
+          <input
+            type="checkbox"
+            checked={typographyMode}
+            onChange={(event) => onTypographyModeChange(event.target.checked)}
+          />
+          <span>Modo tipografico (limitar saida a letras escolhidas)</span>
+        </label>
+
+        {typographyMode ? (
+          <label className="flex flex-col gap-2 md:col-span-2">
+            <span className="text-sm font-medium">Letras permitidas</span>
+            <input
+              value={typographyLetters}
+              onChange={(event) => onTypographyLettersChange(event.target.value)}
+              className="rounded-lg border border-slate-300 px-3 py-2"
+              placeholder="VINI"
+            />
+            <span className="text-xs text-slate-500">
+              Exemplo: VINI faz a arte usar apenas V, I e N.
+            </span>
+          </label>
+        ) : null}
 
         <label className="flex items-center gap-2 md:col-span-2">
           <input

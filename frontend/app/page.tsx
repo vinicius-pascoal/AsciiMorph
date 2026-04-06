@@ -32,6 +32,8 @@ export default function HomePage() {
   const [layersTextCharset, setLayersTextCharset] = useState("/\\|()[]{}");
   const [layersTextEdgeThreshold, setLayersTextEdgeThreshold] = useState(40);
   const [layersSubjectDeltaThreshold, setLayersSubjectDeltaThreshold] = useState(24);
+  const [typographyMode, setTypographyMode] = useState(false);
+  const [typographyLetters, setTypographyLetters] = useState("VINI");
   const [whatsappFormat, setWhatsappFormat] = useState(true);
   const [loading, setLoading] = useState(false);
   const [downloadingMedia, setDownloadingMedia] = useState(false);
@@ -125,6 +127,8 @@ export default function HomePage() {
         layersTextCharset,
         layersTextEdgeThreshold,
         layersSubjectDeltaThreshold,
+        typographyMode,
+        typographyLetters,
         mode
       });
 
@@ -186,7 +190,9 @@ export default function HomePage() {
           layersSubjectCharset,
           layersTextCharset,
           layersTextEdgeThreshold,
-          layersSubjectDeltaThreshold
+          layersSubjectDeltaThreshold,
+          typographyMode,
+          typographyLetters
         });
         triggerBlobDownload(blob, "ascii-image.png");
       } else {
@@ -209,7 +215,9 @@ export default function HomePage() {
           layersSubjectCharset,
           layersTextCharset,
           layersTextEdgeThreshold,
-          layersSubjectDeltaThreshold
+          layersSubjectDeltaThreshold,
+          typographyMode,
+          typographyLetters
         });
         triggerBlobDownload(blob, "ascii-animation.gif");
       }
@@ -277,6 +285,8 @@ export default function HomePage() {
             layersTextCharset={layersTextCharset}
             layersTextEdgeThreshold={layersTextEdgeThreshold}
             layersSubjectDeltaThreshold={layersSubjectDeltaThreshold}
+            typographyMode={typographyMode}
+            typographyLetters={typographyLetters}
             whatsappFormat={whatsappFormat}
             customPresets={customPresets}
             onModeChange={(nextMode) => {
@@ -322,6 +332,8 @@ export default function HomePage() {
             onLayersTextCharsetChange={setLayersTextCharset}
             onLayersTextEdgeThresholdChange={setLayersTextEdgeThreshold}
             onLayersSubjectDeltaThresholdChange={setLayersSubjectDeltaThreshold}
+            onTypographyModeChange={setTypographyMode}
+            onTypographyLettersChange={setTypographyLetters}
             onWhatsappFormatChange={setWhatsappFormat}
             onSaveCustomPreset={handleSaveCustomPreset}
             onDeleteCustomPreset={handleDeleteCustomPreset}

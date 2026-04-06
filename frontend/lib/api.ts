@@ -20,6 +20,8 @@ export type ConvertParams = {
   layersTextCharset: string;
   layersTextEdgeThreshold: number;
   layersSubjectDeltaThreshold: number;
+  typographyMode: boolean;
+  typographyLetters: string;
   mode: ConvertMode;
 };
 
@@ -65,6 +67,8 @@ type DownloadParams = {
   layersTextCharset: string;
   layersTextEdgeThreshold: number;
   layersSubjectDeltaThreshold: number;
+  typographyMode: boolean;
+  typographyLetters: string;
 };
 
 export async function convertToAscii(params: ConvertParams): Promise<ImageResult | GifResult> {
@@ -88,6 +92,8 @@ export async function convertToAscii(params: ConvertParams): Promise<ImageResult
   formData.append("layers_text_charset", params.layersTextCharset);
   formData.append("layers_text_edge_threshold", String(params.layersTextEdgeThreshold));
   formData.append("layers_subject_delta_threshold", String(params.layersSubjectDeltaThreshold));
+  formData.append("typography_mode", String(params.typographyMode));
+  formData.append("typography_letters", params.typographyLetters);
 
   const endpoint = params.mode === "gif" ? "/convert/gif" : "/convert/image";
   const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -124,6 +130,8 @@ function buildConvertFormData(params: DownloadParams): FormData {
   formData.append("layers_text_charset", params.layersTextCharset);
   formData.append("layers_text_edge_threshold", String(params.layersTextEdgeThreshold));
   formData.append("layers_subject_delta_threshold", String(params.layersSubjectDeltaThreshold));
+  formData.append("typography_mode", String(params.typographyMode));
+  formData.append("typography_letters", params.typographyLetters);
   return formData;
 }
 

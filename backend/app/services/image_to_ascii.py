@@ -32,6 +32,21 @@ def _normalize_mosaic_charsets(mosaic_charsets: str | None) -> list[str]:
     return normalized
 
 
+def _normalize_typography_letters(typography_letters: str | None) -> str:
+    if not typography_letters:
+        return ""
+
+    # Remove whitespaces para evitar "caracteres invisiveis" no conjunto tipografico.
+    return "".join(char for char in typography_letters if not char.isspace())
+
+
+def _restrict_charset_to_typography(charset: str, typography_letters: str) -> str:
+    restricted = "".join(char for char in charset if char in typography_letters)
+    if restricted:
+        return restricted
+    return typography_letters
+
+
 def _map_pixels_to_ascii_mosaic(
     pixels: list[int],
     width: int,
@@ -169,6 +184,8 @@ def image_to_ascii(
     layers_text_charset: str | None = None,
     layers_text_edge_threshold: int = 40,
     layers_subject_delta_threshold: int = 24,
+    typography_mode: bool = False,
+    typography_letters: str | None = None,
 ) -> tuple[str, int, int]:
     if width < 20 or width > 300:
         raise ValueError("Width must be between 20 and 300")
@@ -193,6 +210,12 @@ def image_to_ascii(
             raise ValueError(
                 "Layers subject delta threshold must be between 1 and 255")
 
+    normalized_typography_letters = _normalize_typography_letters(
+        typography_letters)
+    if typography_mode and not normalized_typography_letters:
+        raise ValueError(
+            "Typography letters must have at least 1 non-space character")
+
     if mosaic_mode:
         if mosaic_blocks_x < 1 or mosaic_blocks_x > 8:
             raise ValueError("Mosaic blocks_x must be between 1 and 8")
@@ -208,6 +231,27 @@ def image_to_ascii(
         if any(len(charset_item) == 0 for charset_item in block_charsets):
             raise ValueError(
                 "Each mosaic charset must have at least 1 character")
+
+    if typography_mode:
+        chars = _restrict_charset_to_typography(
+            chars, normalized_typography_letters)
+        dark_charset = _restrict_charset_to_typography(
+            dark_charset, normalized_typography_letters)
+        light_charset = _restrict_charset_to_typography(
+            light_charset, normalized_typography_letters)
+        background_charset = _restrict_charset_to_typography(
+            background_charset, normalized_typography_letters)
+        subject_charset = _restrict_charset_to_typography(
+            subject_charset, normalized_typography_letters)
+        text_charset = _restrict_charset_to_typography(
+            text_charset, normalized_typography_letters)
+
+        if mosaic_mode:
+            block_charsets = [
+                _restrict_charset_to_typography(
+                    block_charset, normalized_typography_letters)
+                for block_charset in block_charsets
+            ]
 
     gray_image = ImageOps.grayscale(image)
     original_width, original_height = gray_image.size

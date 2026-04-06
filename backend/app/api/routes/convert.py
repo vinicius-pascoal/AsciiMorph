@@ -37,6 +37,8 @@ async def convert_image_to_ascii(
     layers_text_charset: str = Form(""),
     layers_text_edge_threshold: int = Form(40),
     layers_subject_delta_threshold: int = Form(24),
+    typography_mode: bool = Form(False),
+    typography_letters: str = Form(""),
 ) -> ImageAsciiResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -71,6 +73,8 @@ async def convert_image_to_ascii(
             layers_text_charset=layers_text_charset,
             layers_text_edge_threshold=layers_text_edge_threshold,
             layers_subject_delta_threshold=layers_subject_delta_threshold,
+            typography_mode=typography_mode,
+            typography_letters=typography_letters,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -99,6 +103,8 @@ async def convert_gif_to_ascii(
     layers_text_charset: str = Form(""),
     layers_text_edge_threshold: int = Form(40),
     layers_subject_delta_threshold: int = Form(24),
+    typography_mode: bool = Form(False),
+    typography_letters: str = Form(""),
 ) -> GifAsciiResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -134,6 +140,8 @@ async def convert_gif_to_ascii(
             layers_text_charset=layers_text_charset,
             layers_text_edge_threshold=layers_text_edge_threshold,
             layers_subject_delta_threshold=layers_subject_delta_threshold,
+            typography_mode=typography_mode,
+            typography_letters=typography_letters,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -171,6 +179,8 @@ async def render_image_ascii_png(
     layers_text_charset: str = Form(""),
     layers_text_edge_threshold: int = Form(40),
     layers_subject_delta_threshold: int = Form(24),
+    typography_mode: bool = Form(False),
+    typography_letters: str = Form(""),
 ) -> StreamingResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -205,6 +215,8 @@ async def render_image_ascii_png(
             layers_text_charset=layers_text_charset,
             layers_text_edge_threshold=layers_text_edge_threshold,
             layers_subject_delta_threshold=layers_subject_delta_threshold,
+            typography_mode=typography_mode,
+            typography_letters=typography_letters,
         )
         png_bytes = ascii_to_png_bytes(ascii_art)
     except ValueError as error:
@@ -238,6 +250,8 @@ async def render_gif_ascii_gif(
     layers_text_charset: str = Form(""),
     layers_text_edge_threshold: int = Form(40),
     layers_subject_delta_threshold: int = Form(24),
+    typography_mode: bool = Form(False),
+    typography_letters: str = Form(""),
 ) -> StreamingResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -273,6 +287,8 @@ async def render_gif_ascii_gif(
             layers_text_charset=layers_text_charset,
             layers_text_edge_threshold=layers_text_edge_threshold,
             layers_subject_delta_threshold=layers_subject_delta_threshold,
+            typography_mode=typography_mode,
+            typography_letters=typography_letters,
             max_frames=120,
         )
         gif_bytes = ascii_frames_to_gif_bytes(frames_ascii, fps)

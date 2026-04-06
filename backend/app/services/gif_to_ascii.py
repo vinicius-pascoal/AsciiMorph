@@ -24,6 +24,8 @@ def gif_to_ascii_frames(
     layers_text_charset: str | None = None,
     layers_text_edge_threshold: int = 40,
     layers_subject_delta_threshold: int = 24,
+    typography_mode: bool = False,
+    typography_letters: str | None = None,
     max_frames: int = 120,
 ) -> tuple[list[str], int, int, int]:
     frames_ascii: list[str] = []
@@ -62,6 +64,8 @@ def gif_to_ascii_frames(
             layers_text_charset=layers_text_charset,
             layers_text_edge_threshold=layers_text_edge_threshold,
             layers_subject_delta_threshold=layers_subject_delta_threshold,
+            typography_mode=typography_mode,
+            typography_letters=typography_letters,
         )
         frames_ascii.append(ascii_art)
 

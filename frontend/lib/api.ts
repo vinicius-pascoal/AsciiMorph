@@ -10,6 +10,10 @@ export type ConvertParams = {
   mosaicBlocksX: number;
   mosaicBlocksY: number;
   mosaicCharsets: string;
+  duotoneMode: boolean;
+  duotoneThreshold: number;
+  duotoneDarkCharset: string;
+  duotoneLightCharset: string;
   mode: ConvertMode;
 };
 
@@ -45,6 +49,10 @@ type DownloadParams = {
   mosaicBlocksX: number;
   mosaicBlocksY: number;
   mosaicCharsets: string;
+  duotoneMode: boolean;
+  duotoneThreshold: number;
+  duotoneDarkCharset: string;
+  duotoneLightCharset: string;
 };
 
 export async function convertToAscii(params: ConvertParams): Promise<ImageResult | GifResult> {
@@ -58,6 +66,10 @@ export async function convertToAscii(params: ConvertParams): Promise<ImageResult
   formData.append("mosaic_blocks_x", String(params.mosaicBlocksX));
   formData.append("mosaic_blocks_y", String(params.mosaicBlocksY));
   formData.append("mosaic_charsets", params.mosaicCharsets);
+  formData.append("duotone_mode", String(params.duotoneMode));
+  formData.append("duotone_threshold", String(params.duotoneThreshold));
+  formData.append("duotone_dark_charset", params.duotoneDarkCharset);
+  formData.append("duotone_light_charset", params.duotoneLightCharset);
 
   const endpoint = params.mode === "gif" ? "/convert/gif" : "/convert/image";
   const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -84,6 +96,10 @@ function buildConvertFormData(params: DownloadParams): FormData {
   formData.append("mosaic_blocks_x", String(params.mosaicBlocksX));
   formData.append("mosaic_blocks_y", String(params.mosaicBlocksY));
   formData.append("mosaic_charsets", params.mosaicCharsets);
+  formData.append("duotone_mode", String(params.duotoneMode));
+  formData.append("duotone_threshold", String(params.duotoneThreshold));
+  formData.append("duotone_dark_charset", params.duotoneDarkCharset);
+  formData.append("duotone_light_charset", params.duotoneLightCharset);
   return formData;
 }
 

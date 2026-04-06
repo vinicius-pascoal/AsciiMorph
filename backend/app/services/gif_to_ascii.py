@@ -14,6 +14,10 @@ def gif_to_ascii_frames(
     mosaic_blocks_x: int = 3,
     mosaic_blocks_y: int = 3,
     mosaic_charsets: str | None = None,
+    duotone_mode: bool = False,
+    duotone_threshold: int = 128,
+    duotone_dark_charset: str | None = None,
+    duotone_light_charset: str | None = None,
     max_frames: int = 120,
 ) -> tuple[list[str], int, int, int]:
     frames_ascii: list[str] = []
@@ -42,6 +46,10 @@ def gif_to_ascii_frames(
             mosaic_blocks_x=mosaic_blocks_x,
             mosaic_blocks_y=mosaic_blocks_y,
             mosaic_charsets=mosaic_charsets,
+            duotone_mode=duotone_mode,
+            duotone_threshold=duotone_threshold,
+            duotone_dark_charset=duotone_dark_charset,
+            duotone_light_charset=duotone_light_charset,
         )
         frames_ascii.append(ascii_art)
 

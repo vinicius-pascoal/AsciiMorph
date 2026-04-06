@@ -9,6 +9,10 @@ type ControlsPanelProps = {
   mosaicBlocksX: number;
   mosaicBlocksY: number;
   mosaicCharsets: string;
+  duotoneMode: boolean;
+  duotoneThreshold: number;
+  duotoneDarkCharset: string;
+  duotoneLightCharset: string;
   whatsappFormat: boolean;
   mode: "image" | "gif";
   customPresets: CustomStylePreset[];
@@ -20,6 +24,10 @@ type ControlsPanelProps = {
   onMosaicBlocksXChange: (value: number) => void;
   onMosaicBlocksYChange: (value: number) => void;
   onMosaicCharsetsChange: (value: string) => void;
+  onDuotoneModeChange: (value: boolean) => void;
+  onDuotoneThresholdChange: (value: number) => void;
+  onDuotoneDarkCharsetChange: (value: string) => void;
+  onDuotoneLightCharsetChange: (value: string) => void;
   onWhatsappFormatChange: (value: boolean) => void;
   onModeChange: (value: "image" | "gif") => void;
   onSaveCustomPreset: (name: string) => void;
@@ -71,6 +79,10 @@ export function ControlsPanel({
   mosaicBlocksX,
   mosaicBlocksY,
   mosaicCharsets,
+  duotoneMode,
+  duotoneThreshold,
+  duotoneDarkCharset,
+  duotoneLightCharset,
   whatsappFormat,
   mode,
   customPresets,
@@ -82,6 +94,10 @@ export function ControlsPanel({
   onMosaicBlocksXChange,
   onMosaicBlocksYChange,
   onMosaicCharsetsChange,
+  onDuotoneModeChange,
+  onDuotoneThresholdChange,
+  onDuotoneDarkCharsetChange,
+  onDuotoneLightCharsetChange,
   onWhatsappFormatChange,
   onModeChange,
   onSaveCustomPreset,
@@ -267,6 +283,7 @@ export function ControlsPanel({
             type="checkbox"
             checked={mosaicMode}
             onChange={(event) => onMosaicModeChange(event.target.checked)}
+            disabled={duotoneMode}
           />
           <span>Modo mosaico (charsets diferentes por bloco)</span>
         </label>
@@ -306,6 +323,51 @@ export function ControlsPanel({
               <span className="text-xs text-slate-500">
                 Se vazio, o charset principal sera reaplicado em todos os blocos.
               </span>
+            </label>
+          </>
+        ) : null}
+
+        <label className="flex items-center gap-2 md:col-span-2">
+          <input
+            type="checkbox"
+            checked={duotoneMode}
+            onChange={(event) => onDuotoneModeChange(event.target.checked)}
+            disabled={mosaicMode}
+          />
+          <span>Duotone ASCII (paletas claro/escuro posterizadas)</span>
+        </label>
+
+        {duotoneMode ? (
+          <>
+            <label className="flex flex-col gap-2 md:col-span-2">
+              <span className="text-sm font-medium">Limiar duotone ({duotoneThreshold})</span>
+              <input
+                type="range"
+                min={1}
+                max={254}
+                value={duotoneThreshold}
+                onChange={(event) => onDuotoneThresholdChange(Number(event.target.value))}
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Paleta escura</span>
+              <input
+                value={duotoneDarkCharset}
+                onChange={(event) => onDuotoneDarkCharsetChange(event.target.value)}
+                className="rounded-lg border border-slate-300 px-3 py-2"
+                placeholder="@#%WM8B$"
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Paleta clara</span>
+              <input
+                value={duotoneLightCharset}
+                onChange={(event) => onDuotoneLightCharsetChange(event.target.value)}
+                className="rounded-lg border border-slate-300 px-3 py-2"
+                placeholder="+=-:. "
+              />
             </label>
           </>
         ) : null}

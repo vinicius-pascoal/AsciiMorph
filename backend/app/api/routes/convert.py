@@ -27,6 +27,10 @@ async def convert_image_to_ascii(
     mosaic_blocks_x: int = Form(3),
     mosaic_blocks_y: int = Form(3),
     mosaic_charsets: str = Form(""),
+    duotone_mode: bool = Form(False),
+    duotone_threshold: int = Form(128),
+    duotone_dark_charset: str = Form(""),
+    duotone_light_charset: str = Form(""),
 ) -> ImageAsciiResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -51,6 +55,10 @@ async def convert_image_to_ascii(
             mosaic_blocks_x=mosaic_blocks_x,
             mosaic_blocks_y=mosaic_blocks_y,
             mosaic_charsets=mosaic_charsets,
+            duotone_mode=duotone_mode,
+            duotone_threshold=duotone_threshold,
+            duotone_dark_charset=duotone_dark_charset,
+            duotone_light_charset=duotone_light_charset,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -69,6 +77,10 @@ async def convert_gif_to_ascii(
     mosaic_blocks_x: int = Form(3),
     mosaic_blocks_y: int = Form(3),
     mosaic_charsets: str = Form(""),
+    duotone_mode: bool = Form(False),
+    duotone_threshold: int = Form(128),
+    duotone_dark_charset: str = Form(""),
+    duotone_light_charset: str = Form(""),
 ) -> GifAsciiResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -94,6 +106,10 @@ async def convert_gif_to_ascii(
             mosaic_blocks_x=mosaic_blocks_x,
             mosaic_blocks_y=mosaic_blocks_y,
             mosaic_charsets=mosaic_charsets,
+            duotone_mode=duotone_mode,
+            duotone_threshold=duotone_threshold,
+            duotone_dark_charset=duotone_dark_charset,
+            duotone_light_charset=duotone_light_charset,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -121,6 +137,10 @@ async def render_image_ascii_png(
     mosaic_blocks_x: int = Form(3),
     mosaic_blocks_y: int = Form(3),
     mosaic_charsets: str = Form(""),
+    duotone_mode: bool = Form(False),
+    duotone_threshold: int = Form(128),
+    duotone_dark_charset: str = Form(""),
+    duotone_light_charset: str = Form(""),
 ) -> StreamingResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -145,6 +165,10 @@ async def render_image_ascii_png(
             mosaic_blocks_x=mosaic_blocks_x,
             mosaic_blocks_y=mosaic_blocks_y,
             mosaic_charsets=mosaic_charsets,
+            duotone_mode=duotone_mode,
+            duotone_threshold=duotone_threshold,
+            duotone_dark_charset=duotone_dark_charset,
+            duotone_light_charset=duotone_light_charset,
         )
         png_bytes = ascii_to_png_bytes(ascii_art)
     except ValueError as error:
@@ -168,6 +192,10 @@ async def render_gif_ascii_gif(
     mosaic_blocks_x: int = Form(3),
     mosaic_blocks_y: int = Form(3),
     mosaic_charsets: str = Form(""),
+    duotone_mode: bool = Form(False),
+    duotone_threshold: int = Form(128),
+    duotone_dark_charset: str = Form(""),
+    duotone_light_charset: str = Form(""),
 ) -> StreamingResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -193,6 +221,10 @@ async def render_gif_ascii_gif(
             mosaic_blocks_x=mosaic_blocks_x,
             mosaic_blocks_y=mosaic_blocks_y,
             mosaic_charsets=mosaic_charsets,
+            duotone_mode=duotone_mode,
+            duotone_threshold=duotone_threshold,
+            duotone_dark_charset=duotone_dark_charset,
+            duotone_light_charset=duotone_light_charset,
             max_frames=120,
         )
         gif_bytes = ascii_frames_to_gif_bytes(frames_ascii, fps)

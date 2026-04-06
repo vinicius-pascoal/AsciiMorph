@@ -22,6 +22,10 @@ export default function HomePage() {
   const [mosaicBlocksX, setMosaicBlocksX] = useState(3);
   const [mosaicBlocksY, setMosaicBlocksY] = useState(3);
   const [mosaicCharsets, setMosaicCharsets] = useState("@%#*+=-:. | @#*:. | #@O=+|:. ");
+  const [duotoneMode, setDuotoneMode] = useState(false);
+  const [duotoneThreshold, setDuotoneThreshold] = useState(128);
+  const [duotoneDarkCharset, setDuotoneDarkCharset] = useState("@#%WM8B$");
+  const [duotoneLightCharset, setDuotoneLightCharset] = useState("+=-:. ");
   const [whatsappFormat, setWhatsappFormat] = useState(true);
   const [loading, setLoading] = useState(false);
   const [downloadingMedia, setDownloadingMedia] = useState(false);
@@ -105,6 +109,10 @@ export default function HomePage() {
         mosaicBlocksX,
         mosaicBlocksY,
         mosaicCharsets,
+        duotoneMode,
+        duotoneThreshold,
+        duotoneDarkCharset,
+        duotoneLightCharset,
         mode
       });
 
@@ -156,7 +164,11 @@ export default function HomePage() {
           mosaicMode,
           mosaicBlocksX,
           mosaicBlocksY,
-          mosaicCharsets
+          mosaicCharsets,
+          duotoneMode,
+          duotoneThreshold,
+          duotoneDarkCharset,
+          duotoneLightCharset
         });
         triggerBlobDownload(blob, "ascii-image.png");
       } else {
@@ -169,7 +181,11 @@ export default function HomePage() {
           mosaicMode,
           mosaicBlocksX,
           mosaicBlocksY,
-          mosaicCharsets
+          mosaicCharsets,
+          duotoneMode,
+          duotoneThreshold,
+          duotoneDarkCharset,
+          duotoneLightCharset
         });
         triggerBlobDownload(blob, "ascii-animation.gif");
       }
@@ -227,6 +243,10 @@ export default function HomePage() {
             mosaicBlocksX={mosaicBlocksX}
             mosaicBlocksY={mosaicBlocksY}
             mosaicCharsets={mosaicCharsets}
+            duotoneMode={duotoneMode}
+            duotoneThreshold={duotoneThreshold}
+            duotoneDarkCharset={duotoneDarkCharset}
+            duotoneLightCharset={duotoneLightCharset}
             whatsappFormat={whatsappFormat}
             customPresets={customPresets}
             onModeChange={(nextMode) => {
@@ -240,10 +260,24 @@ export default function HomePage() {
             onCharsetChange={setCharset}
             onInvertChange={setInvert}
             onAutoQualityChange={setAutoQuality}
-            onMosaicModeChange={setMosaicMode}
+            onMosaicModeChange={(value) => {
+              setMosaicMode(value);
+              if (value) {
+                setDuotoneMode(false);
+              }
+            }}
             onMosaicBlocksXChange={setMosaicBlocksX}
             onMosaicBlocksYChange={setMosaicBlocksY}
             onMosaicCharsetsChange={setMosaicCharsets}
+            onDuotoneModeChange={(value) => {
+              setDuotoneMode(value);
+              if (value) {
+                setMosaicMode(false);
+              }
+            }}
+            onDuotoneThresholdChange={setDuotoneThreshold}
+            onDuotoneDarkCharsetChange={setDuotoneDarkCharset}
+            onDuotoneLightCharsetChange={setDuotoneLightCharset}
             onWhatsappFormatChange={setWhatsappFormat}
             onSaveCustomPreset={handleSaveCustomPreset}
             onDeleteCustomPreset={handleDeleteCustomPreset}

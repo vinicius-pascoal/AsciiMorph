@@ -12,6 +12,7 @@ Aplicacao web para converter imagens e GIFs em arte ASCII, com preview interativ
 - Conversao de GIF para ASCII frame a frame.
 - Presets de estilo ASCII: Terminal, Bold, Minimal, Retro e WhatsApp.
 - Modo Mosaico para dividir a imagem em blocos com charsets distintos por regiao.
+- Duotone ASCII com paletas claro/escuro para visual posterizado.
 - Modo Auto Quality para inferir largura, charset e inversao automaticamente.
 - Comparacao visual no preview com divisor arrastavel direto na imagem.
 - Download de saida em PNG ASCII (imagem) e GIF ASCII (animacao).
@@ -107,6 +108,10 @@ Se for publicar, ajuste o `frontend_origin` para o dominio real do frontend.
   - `mosaic_blocks_x`: inteiro (1..8)
   - `mosaic_blocks_y`: inteiro (1..8)
   - `mosaic_charsets`: string separada por `|` (ex.: `@%#*+=-:. | @#*:. | #@O=+|:. `)
+  - `duotone_mode`: `true/false` (habilita paletas claro/escuro)
+  - `duotone_threshold`: inteiro (1..254), limiar entre regiao escura e clara
+  - `duotone_dark_charset`: charset para a faixa escura
+  - `duotone_light_charset`: charset para a faixa clara
 
 - `POST /api/v1/convert/gif`
   - `file`: `image/gif`
@@ -118,6 +123,10 @@ Se for publicar, ajuste o `frontend_origin` para o dominio real do frontend.
   - `mosaic_blocks_x`: inteiro (1..8)
   - `mosaic_blocks_y`: inteiro (1..8)
   - `mosaic_charsets`: string separada por `|` (ex.: `@%#*+=-:. | @#*:. | #@O=+|:. `)
+  - `duotone_mode`: `true/false` (habilita paletas claro/escuro)
+  - `duotone_threshold`: inteiro (1..254), limiar entre regiao escura e clara
+  - `duotone_dark_charset`: charset para a faixa escura
+  - `duotone_light_charset`: charset para a faixa clara
 
 ### Render para download de midia
 

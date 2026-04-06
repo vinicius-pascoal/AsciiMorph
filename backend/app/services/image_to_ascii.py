@@ -27,7 +27,8 @@ def _normalize_mosaic_charsets(mosaic_charsets: str | None) -> list[str]:
     if not mosaic_charsets:
         return []
 
-    normalized = [value.strip() for value in mosaic_charsets.split("|") if value.strip()]
+    normalized = [value.strip()
+                  for value in mosaic_charsets.split("|") if value.strip()]
     return normalized
 
 
@@ -59,6 +60,37 @@ def _map_pixels_to_ascii_mosaic(
     return "".join(mapped)
 
 
+def _map_pixels_to_ascii_duotone(
+    pixels: list[int],
+    dark_charset: str,
+    light_charset: str,
+    threshold: int,
+    invert: bool,
+) -> str:
+    dark_chars = dark_charset[::-1] if invert else dark_charset
+    light_chars = light_charset[::-1] if invert else light_charset
+
+    dark_last = len(dark_chars) - 1
+    light_last = len(light_chars) - 1
+
+    mapped: list[str] = []
+    dark_range = max(threshold, 1)
+    light_range = max(255 - threshold, 1)
+
+    for value in pixels:
+        if value <= threshold:
+            normalized = value / dark_range
+            idx = int(normalized * dark_last)
+            mapped.append(dark_chars[idx])
+            continue
+
+        normalized = (value - threshold) / light_range
+        idx = int(normalized * light_last)
+        mapped.append(light_chars[idx])
+
+    return "".join(mapped)
+
+
 def image_to_ascii(
     image: Image.Image,
     width: int = 120,
@@ -68,12 +100,22 @@ def image_to_ascii(
     mosaic_blocks_x: int = 3,
     mosaic_blocks_y: int = 3,
     mosaic_charsets: str | None = None,
+    duotone_mode: bool = False,
+    duotone_threshold: int = 128,
+    duotone_dark_charset: str | None = None,
+    duotone_light_charset: str | None = None,
 ) -> tuple[str, int, int]:
     if width < 20 or width > 300:
         raise ValueError("Width must be between 20 and 300")
 
     chars = _normalize_charset(charset)
     normalized_mosaic_charsets = _normalize_mosaic_charsets(mosaic_charsets)
+    dark_charset = _normalize_charset(duotone_dark_charset)
+    light_charset = _normalize_charset(duotone_light_charset)
+
+    if duotone_mode:
+        if duotone_threshold < 1 or duotone_threshold > 254:
+            raise ValueError("Duotone threshold must be between 1 and 254")
 
     if mosaic_mode:
         if mosaic_blocks_x < 1 or mosaic_blocks_x > 8:
@@ -88,7 +130,8 @@ def image_to_ascii(
             block_charsets = [chars] * block_count
 
         if any(len(charset_item) == 0 for charset_item in block_charsets):
-            raise ValueError("Each mosaic charset must have at least 1 character")
+            raise ValueError(
+                "Each mosaic charset must have at least 1 character")
 
     gray_image = ImageOps.grayscale(image)
     original_width, original_height = gray_image.size
@@ -99,7 +142,15 @@ def image_to_ascii(
     resized = gray_image.resize((width, corrected_height))
     pixels = list(resized.getdata())
 
-    if mosaic_mode:
+    if duotone_mode:
+        ascii_flat = _map_pixels_to_ascii_duotone(
+            pixels=pixels,
+            dark_charset=dark_charset,
+            light_charset=light_charset,
+            threshold=duotone_threshold,
+            invert=invert,
+        )
+    elif mosaic_mode:
         ascii_flat = _map_pixels_to_ascii_mosaic(
             pixels=pixels,
             width=width,

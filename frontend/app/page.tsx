@@ -26,6 +26,12 @@ export default function HomePage() {
   const [duotoneThreshold, setDuotoneThreshold] = useState(128);
   const [duotoneDarkCharset, setDuotoneDarkCharset] = useState("@#%WM8B$");
   const [duotoneLightCharset, setDuotoneLightCharset] = useState("+=-:. ");
+  const [layersMode, setLayersMode] = useState(false);
+  const [layersBackgroundCharset, setLayersBackgroundCharset] = useState(" .:-=");
+  const [layersSubjectCharset, setLayersSubjectCharset] = useState("@#%WM8B$");
+  const [layersTextCharset, setLayersTextCharset] = useState("/\\|()[]{}");
+  const [layersTextEdgeThreshold, setLayersTextEdgeThreshold] = useState(40);
+  const [layersSubjectDeltaThreshold, setLayersSubjectDeltaThreshold] = useState(24);
   const [whatsappFormat, setWhatsappFormat] = useState(true);
   const [loading, setLoading] = useState(false);
   const [downloadingMedia, setDownloadingMedia] = useState(false);
@@ -113,6 +119,12 @@ export default function HomePage() {
         duotoneThreshold,
         duotoneDarkCharset,
         duotoneLightCharset,
+        layersMode,
+        layersBackgroundCharset,
+        layersSubjectCharset,
+        layersTextCharset,
+        layersTextEdgeThreshold,
+        layersSubjectDeltaThreshold,
         mode
       });
 
@@ -168,7 +180,13 @@ export default function HomePage() {
           duotoneMode,
           duotoneThreshold,
           duotoneDarkCharset,
-          duotoneLightCharset
+          duotoneLightCharset,
+          layersMode,
+          layersBackgroundCharset,
+          layersSubjectCharset,
+          layersTextCharset,
+          layersTextEdgeThreshold,
+          layersSubjectDeltaThreshold
         });
         triggerBlobDownload(blob, "ascii-image.png");
       } else {
@@ -185,7 +203,13 @@ export default function HomePage() {
           duotoneMode,
           duotoneThreshold,
           duotoneDarkCharset,
-          duotoneLightCharset
+          duotoneLightCharset,
+          layersMode,
+          layersBackgroundCharset,
+          layersSubjectCharset,
+          layersTextCharset,
+          layersTextEdgeThreshold,
+          layersSubjectDeltaThreshold
         });
         triggerBlobDownload(blob, "ascii-animation.gif");
       }
@@ -247,6 +271,12 @@ export default function HomePage() {
             duotoneThreshold={duotoneThreshold}
             duotoneDarkCharset={duotoneDarkCharset}
             duotoneLightCharset={duotoneLightCharset}
+            layersMode={layersMode}
+            layersBackgroundCharset={layersBackgroundCharset}
+            layersSubjectCharset={layersSubjectCharset}
+            layersTextCharset={layersTextCharset}
+            layersTextEdgeThreshold={layersTextEdgeThreshold}
+            layersSubjectDeltaThreshold={layersSubjectDeltaThreshold}
             whatsappFormat={whatsappFormat}
             customPresets={customPresets}
             onModeChange={(nextMode) => {
@@ -264,6 +294,7 @@ export default function HomePage() {
               setMosaicMode(value);
               if (value) {
                 setDuotoneMode(false);
+                setLayersMode(false);
               }
             }}
             onMosaicBlocksXChange={setMosaicBlocksX}
@@ -273,11 +304,24 @@ export default function HomePage() {
               setDuotoneMode(value);
               if (value) {
                 setMosaicMode(false);
+                setLayersMode(false);
               }
             }}
             onDuotoneThresholdChange={setDuotoneThreshold}
             onDuotoneDarkCharsetChange={setDuotoneDarkCharset}
             onDuotoneLightCharsetChange={setDuotoneLightCharset}
+            onLayersModeChange={(value) => {
+              setLayersMode(value);
+              if (value) {
+                setMosaicMode(false);
+                setDuotoneMode(false);
+              }
+            }}
+            onLayersBackgroundCharsetChange={setLayersBackgroundCharset}
+            onLayersSubjectCharsetChange={setLayersSubjectCharset}
+            onLayersTextCharsetChange={setLayersTextCharset}
+            onLayersTextEdgeThresholdChange={setLayersTextEdgeThreshold}
+            onLayersSubjectDeltaThresholdChange={setLayersSubjectDeltaThreshold}
             onWhatsappFormatChange={setWhatsappFormat}
             onSaveCustomPreset={handleSaveCustomPreset}
             onDeleteCustomPreset={handleDeleteCustomPreset}

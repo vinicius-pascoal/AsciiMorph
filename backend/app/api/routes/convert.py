@@ -31,6 +31,12 @@ async def convert_image_to_ascii(
     duotone_threshold: int = Form(128),
     duotone_dark_charset: str = Form(""),
     duotone_light_charset: str = Form(""),
+    layers_mode: bool = Form(False),
+    layers_background_charset: str = Form(""),
+    layers_subject_charset: str = Form(""),
+    layers_text_charset: str = Form(""),
+    layers_text_edge_threshold: int = Form(40),
+    layers_subject_delta_threshold: int = Form(24),
 ) -> ImageAsciiResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -59,6 +65,12 @@ async def convert_image_to_ascii(
             duotone_threshold=duotone_threshold,
             duotone_dark_charset=duotone_dark_charset,
             duotone_light_charset=duotone_light_charset,
+            layers_mode=layers_mode,
+            layers_background_charset=layers_background_charset,
+            layers_subject_charset=layers_subject_charset,
+            layers_text_charset=layers_text_charset,
+            layers_text_edge_threshold=layers_text_edge_threshold,
+            layers_subject_delta_threshold=layers_subject_delta_threshold,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -81,6 +93,12 @@ async def convert_gif_to_ascii(
     duotone_threshold: int = Form(128),
     duotone_dark_charset: str = Form(""),
     duotone_light_charset: str = Form(""),
+    layers_mode: bool = Form(False),
+    layers_background_charset: str = Form(""),
+    layers_subject_charset: str = Form(""),
+    layers_text_charset: str = Form(""),
+    layers_text_edge_threshold: int = Form(40),
+    layers_subject_delta_threshold: int = Form(24),
 ) -> GifAsciiResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -110,6 +128,12 @@ async def convert_gif_to_ascii(
             duotone_threshold=duotone_threshold,
             duotone_dark_charset=duotone_dark_charset,
             duotone_light_charset=duotone_light_charset,
+            layers_mode=layers_mode,
+            layers_background_charset=layers_background_charset,
+            layers_subject_charset=layers_subject_charset,
+            layers_text_charset=layers_text_charset,
+            layers_text_edge_threshold=layers_text_edge_threshold,
+            layers_subject_delta_threshold=layers_subject_delta_threshold,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -141,6 +165,12 @@ async def render_image_ascii_png(
     duotone_threshold: int = Form(128),
     duotone_dark_charset: str = Form(""),
     duotone_light_charset: str = Form(""),
+    layers_mode: bool = Form(False),
+    layers_background_charset: str = Form(""),
+    layers_subject_charset: str = Form(""),
+    layers_text_charset: str = Form(""),
+    layers_text_edge_threshold: int = Form(40),
+    layers_subject_delta_threshold: int = Form(24),
 ) -> StreamingResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -169,6 +199,12 @@ async def render_image_ascii_png(
             duotone_threshold=duotone_threshold,
             duotone_dark_charset=duotone_dark_charset,
             duotone_light_charset=duotone_light_charset,
+            layers_mode=layers_mode,
+            layers_background_charset=layers_background_charset,
+            layers_subject_charset=layers_subject_charset,
+            layers_text_charset=layers_text_charset,
+            layers_text_edge_threshold=layers_text_edge_threshold,
+            layers_subject_delta_threshold=layers_subject_delta_threshold,
         )
         png_bytes = ascii_to_png_bytes(ascii_art)
     except ValueError as error:
@@ -196,6 +232,12 @@ async def render_gif_ascii_gif(
     duotone_threshold: int = Form(128),
     duotone_dark_charset: str = Form(""),
     duotone_light_charset: str = Form(""),
+    layers_mode: bool = Form(False),
+    layers_background_charset: str = Form(""),
+    layers_subject_charset: str = Form(""),
+    layers_text_charset: str = Form(""),
+    layers_text_edge_threshold: int = Form(40),
+    layers_subject_delta_threshold: int = Form(24),
 ) -> StreamingResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -225,6 +267,12 @@ async def render_gif_ascii_gif(
             duotone_threshold=duotone_threshold,
             duotone_dark_charset=duotone_dark_charset,
             duotone_light_charset=duotone_light_charset,
+            layers_mode=layers_mode,
+            layers_background_charset=layers_background_charset,
+            layers_subject_charset=layers_subject_charset,
+            layers_text_charset=layers_text_charset,
+            layers_text_edge_threshold=layers_text_edge_threshold,
+            layers_subject_delta_threshold=layers_subject_delta_threshold,
             max_frames=120,
         )
         gif_bytes = ascii_frames_to_gif_bytes(frames_ascii, fps)

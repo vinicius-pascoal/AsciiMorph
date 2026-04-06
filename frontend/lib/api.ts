@@ -14,6 +14,12 @@ export type ConvertParams = {
   duotoneThreshold: number;
   duotoneDarkCharset: string;
   duotoneLightCharset: string;
+  layersMode: boolean;
+  layersBackgroundCharset: string;
+  layersSubjectCharset: string;
+  layersTextCharset: string;
+  layersTextEdgeThreshold: number;
+  layersSubjectDeltaThreshold: number;
   mode: ConvertMode;
 };
 
@@ -53,6 +59,12 @@ type DownloadParams = {
   duotoneThreshold: number;
   duotoneDarkCharset: string;
   duotoneLightCharset: string;
+  layersMode: boolean;
+  layersBackgroundCharset: string;
+  layersSubjectCharset: string;
+  layersTextCharset: string;
+  layersTextEdgeThreshold: number;
+  layersSubjectDeltaThreshold: number;
 };
 
 export async function convertToAscii(params: ConvertParams): Promise<ImageResult | GifResult> {
@@ -70,6 +82,12 @@ export async function convertToAscii(params: ConvertParams): Promise<ImageResult
   formData.append("duotone_threshold", String(params.duotoneThreshold));
   formData.append("duotone_dark_charset", params.duotoneDarkCharset);
   formData.append("duotone_light_charset", params.duotoneLightCharset);
+  formData.append("layers_mode", String(params.layersMode));
+  formData.append("layers_background_charset", params.layersBackgroundCharset);
+  formData.append("layers_subject_charset", params.layersSubjectCharset);
+  formData.append("layers_text_charset", params.layersTextCharset);
+  formData.append("layers_text_edge_threshold", String(params.layersTextEdgeThreshold));
+  formData.append("layers_subject_delta_threshold", String(params.layersSubjectDeltaThreshold));
 
   const endpoint = params.mode === "gif" ? "/convert/gif" : "/convert/image";
   const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -100,6 +118,12 @@ function buildConvertFormData(params: DownloadParams): FormData {
   formData.append("duotone_threshold", String(params.duotoneThreshold));
   formData.append("duotone_dark_charset", params.duotoneDarkCharset);
   formData.append("duotone_light_charset", params.duotoneLightCharset);
+  formData.append("layers_mode", String(params.layersMode));
+  formData.append("layers_background_charset", params.layersBackgroundCharset);
+  formData.append("layers_subject_charset", params.layersSubjectCharset);
+  formData.append("layers_text_charset", params.layersTextCharset);
+  formData.append("layers_text_edge_threshold", String(params.layersTextEdgeThreshold));
+  formData.append("layers_subject_delta_threshold", String(params.layersSubjectDeltaThreshold));
   return formData;
 }
 

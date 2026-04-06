@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PIL import Image, ImageOps
+from PIL import Image, ImageFilter, ImageOps
 
 DEFAULT_CHARSET = "@%#*+=-:. "
 
@@ -91,6 +91,65 @@ def _map_pixels_to_ascii_duotone(
     return "".join(mapped)
 
 
+def _map_pixels_to_ascii_layers(
+    pixels: list[int],
+    edge_pixels: list[int],
+    width: int,
+    height: int,
+    background_charset: str,
+    subject_charset: str,
+    text_charset: str,
+    invert: bool,
+    text_edge_threshold: int,
+    subject_delta_threshold: int,
+) -> str:
+    background_chars = background_charset[::-
+                                          1] if invert else background_charset
+    subject_chars = subject_charset[::-1] if invert else subject_charset
+    text_chars = text_charset[::-1] if invert else text_charset
+
+    background_last = len(background_chars) - 1
+    subject_last = len(subject_chars) - 1
+    text_last = len(text_chars) - 1
+
+    mapped: list[str] = []
+    for index, value in enumerate(pixels):
+        x = index % width
+        y = index // max(width, 1)
+
+        left_x = x - 1 if x > 0 else x
+        right_x = x + 1 if x < width - 1 else x
+        up_y = y - 1 if y > 0 else y
+        down_y = y + 1 if y < height - 1 else y
+
+        left = pixels[y * width + left_x]
+        right = pixels[y * width + right_x]
+        up = pixels[up_y * width + x]
+        down = pixels[down_y * width + x]
+
+        local_average = (left + right + up + down) / 4
+        local_delta = abs(value - local_average)
+        edge_strength = edge_pixels[index]
+
+        is_text = edge_strength >= text_edge_threshold and 40 <= value <= 220
+        is_subject = local_delta >= subject_delta_threshold and not is_text
+
+        if is_text:
+            idx = int((value / 255) * text_last)
+            mapped.append(text_chars[idx])
+            continue
+
+        if is_subject:
+            idx = int((value / 255) * subject_last)
+            mapped.append(subject_chars[idx])
+            continue
+
+        idx = int((value / 255) * background_last)
+        mapped.append(background_chars[idx])
+
+    return "".join(mapped)
+
+
 def image_to_ascii(
     image: Image.Image,
     width: int = 120,
@@ -104,6 +163,12 @@ def image_to_ascii(
     duotone_threshold: int = 128,
     duotone_dark_charset: str | None = None,
     duotone_light_charset: str | None = None,
+    layers_mode: bool = False,
+    layers_background_charset: str | None = None,
+    layers_subject_charset: str | None = None,
+    layers_text_charset: str | None = None,
+    layers_text_edge_threshold: int = 40,
+    layers_subject_delta_threshold: int = 24,
 ) -> tuple[str, int, int]:
     if width < 20 or width > 300:
         raise ValueError("Width must be between 20 and 300")
@@ -112,10 +177,21 @@ def image_to_ascii(
     normalized_mosaic_charsets = _normalize_mosaic_charsets(mosaic_charsets)
     dark_charset = _normalize_charset(duotone_dark_charset)
     light_charset = _normalize_charset(duotone_light_charset)
+    background_charset = _normalize_charset(layers_background_charset)
+    subject_charset = _normalize_charset(layers_subject_charset)
+    text_charset = _normalize_charset(layers_text_charset)
 
     if duotone_mode:
         if duotone_threshold < 1 or duotone_threshold > 254:
             raise ValueError("Duotone threshold must be between 1 and 254")
+
+    if layers_mode:
+        if layers_text_edge_threshold < 1 or layers_text_edge_threshold > 255:
+            raise ValueError(
+                "Layers text edge threshold must be between 1 and 255")
+        if layers_subject_delta_threshold < 1 or layers_subject_delta_threshold > 255:
+            raise ValueError(
+                "Layers subject delta threshold must be between 1 and 255")
 
     if mosaic_mode:
         if mosaic_blocks_x < 1 or mosaic_blocks_x > 8:
@@ -142,7 +218,23 @@ def image_to_ascii(
     resized = gray_image.resize((width, corrected_height))
     pixels = list(resized.getdata())
 
-    if duotone_mode:
+    if layers_mode:
+        edges = resized.filter(ImageFilter.FIND_EDGES)
+        edge_pixels = list(edges.getdata())
+
+        ascii_flat = _map_pixels_to_ascii_layers(
+            pixels=pixels,
+            edge_pixels=edge_pixels,
+            width=width,
+            height=corrected_height,
+            background_charset=background_charset,
+            subject_charset=subject_charset,
+            text_charset=text_charset,
+            invert=invert,
+            text_edge_threshold=layers_text_edge_threshold,
+            subject_delta_threshold=layers_subject_delta_threshold,
+        )
+    elif duotone_mode:
         ascii_flat = _map_pixels_to_ascii_duotone(
             pixels=pixels,
             dark_charset=dark_charset,

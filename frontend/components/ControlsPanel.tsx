@@ -13,6 +13,12 @@ type ControlsPanelProps = {
   duotoneThreshold: number;
   duotoneDarkCharset: string;
   duotoneLightCharset: string;
+  layersMode: boolean;
+  layersBackgroundCharset: string;
+  layersSubjectCharset: string;
+  layersTextCharset: string;
+  layersTextEdgeThreshold: number;
+  layersSubjectDeltaThreshold: number;
   whatsappFormat: boolean;
   mode: "image" | "gif";
   customPresets: CustomStylePreset[];
@@ -28,6 +34,12 @@ type ControlsPanelProps = {
   onDuotoneThresholdChange: (value: number) => void;
   onDuotoneDarkCharsetChange: (value: string) => void;
   onDuotoneLightCharsetChange: (value: string) => void;
+  onLayersModeChange: (value: boolean) => void;
+  onLayersBackgroundCharsetChange: (value: string) => void;
+  onLayersSubjectCharsetChange: (value: string) => void;
+  onLayersTextCharsetChange: (value: string) => void;
+  onLayersTextEdgeThresholdChange: (value: number) => void;
+  onLayersSubjectDeltaThresholdChange: (value: number) => void;
   onWhatsappFormatChange: (value: boolean) => void;
   onModeChange: (value: "image" | "gif") => void;
   onSaveCustomPreset: (name: string) => void;
@@ -83,6 +95,12 @@ export function ControlsPanel({
   duotoneThreshold,
   duotoneDarkCharset,
   duotoneLightCharset,
+  layersMode,
+  layersBackgroundCharset,
+  layersSubjectCharset,
+  layersTextCharset,
+  layersTextEdgeThreshold,
+  layersSubjectDeltaThreshold,
   whatsappFormat,
   mode,
   customPresets,
@@ -98,6 +116,12 @@ export function ControlsPanel({
   onDuotoneThresholdChange,
   onDuotoneDarkCharsetChange,
   onDuotoneLightCharsetChange,
+  onLayersModeChange,
+  onLayersBackgroundCharsetChange,
+  onLayersSubjectCharsetChange,
+  onLayersTextCharsetChange,
+  onLayersTextEdgeThresholdChange,
+  onLayersSubjectDeltaThresholdChange,
   onWhatsappFormatChange,
   onModeChange,
   onSaveCustomPreset,
@@ -283,7 +307,7 @@ export function ControlsPanel({
             type="checkbox"
             checked={mosaicMode}
             onChange={(event) => onMosaicModeChange(event.target.checked)}
-            disabled={duotoneMode}
+            disabled={duotoneMode || layersMode}
           />
           <span>Modo mosaico (charsets diferentes por bloco)</span>
         </label>
@@ -332,7 +356,7 @@ export function ControlsPanel({
             type="checkbox"
             checked={duotoneMode}
             onChange={(event) => onDuotoneModeChange(event.target.checked)}
-            disabled={mosaicMode}
+            disabled={mosaicMode || layersMode}
           />
           <span>Duotone ASCII (paletas claro/escuro posterizadas)</span>
         </label>
@@ -367,6 +391,72 @@ export function ControlsPanel({
                 onChange={(event) => onDuotoneLightCharsetChange(event.target.value)}
                 className="rounded-lg border border-slate-300 px-3 py-2"
                 placeholder="+=-:. "
+              />
+            </label>
+          </>
+        ) : null}
+
+        <label className="flex items-center gap-2 md:col-span-2">
+          <input
+            type="checkbox"
+            checked={layersMode}
+            onChange={(event) => onLayersModeChange(event.target.checked)}
+            disabled={mosaicMode || duotoneMode}
+          />
+          <span>ASCII Layers (fundo, sujeito e texto com charsets diferentes)</span>
+        </label>
+
+        {layersMode ? (
+          <>
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Charset do fundo</span>
+              <input
+                value={layersBackgroundCharset}
+                onChange={(event) => onLayersBackgroundCharsetChange(event.target.value)}
+                className="rounded-lg border border-slate-300 px-3 py-2"
+                placeholder=" .:-="
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Charset do sujeito</span>
+              <input
+                value={layersSubjectCharset}
+                onChange={(event) => onLayersSubjectCharsetChange(event.target.value)}
+                className="rounded-lg border border-slate-300 px-3 py-2"
+                placeholder="@#%WM8B$"
+              />
+            </label>
+
+            <label className="flex flex-col gap-2 md:col-span-2">
+              <span className="text-sm font-medium">Charset do texto</span>
+              <input
+                value={layersTextCharset}
+                onChange={(event) => onLayersTextCharsetChange(event.target.value)}
+                className="rounded-lg border border-slate-300 px-3 py-2"
+                placeholder="/\\|()[]{}"
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Sensibilidade de texto ({layersTextEdgeThreshold})</span>
+              <input
+                type="range"
+                min={1}
+                max={255}
+                value={layersTextEdgeThreshold}
+                onChange={(event) => onLayersTextEdgeThresholdChange(Number(event.target.value))}
+              />
+            </label>
+
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Separacao sujeito/fundo ({layersSubjectDeltaThreshold})</span>
+              <input
+                type="range"
+                min={1}
+                max={255}
+                value={layersSubjectDeltaThreshold}
+                onChange={(event) => onLayersSubjectDeltaThresholdChange(Number(event.target.value))}
               />
             </label>
           </>

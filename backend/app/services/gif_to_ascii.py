@@ -18,6 +18,12 @@ def gif_to_ascii_frames(
     duotone_threshold: int = 128,
     duotone_dark_charset: str | None = None,
     duotone_light_charset: str | None = None,
+    layers_mode: bool = False,
+    layers_background_charset: str | None = None,
+    layers_subject_charset: str | None = None,
+    layers_text_charset: str | None = None,
+    layers_text_edge_threshold: int = 40,
+    layers_subject_delta_threshold: int = 24,
     max_frames: int = 120,
 ) -> tuple[list[str], int, int, int]:
     frames_ascii: list[str] = []
@@ -50,6 +56,12 @@ def gif_to_ascii_frames(
             duotone_threshold=duotone_threshold,
             duotone_dark_charset=duotone_dark_charset,
             duotone_light_charset=duotone_light_charset,
+            layers_mode=layers_mode,
+            layers_background_charset=layers_background_charset,
+            layers_subject_charset=layers_subject_charset,
+            layers_text_charset=layers_text_charset,
+            layers_text_edge_threshold=layers_text_edge_threshold,
+            layers_subject_delta_threshold=layers_subject_delta_threshold,
         )
         frames_ascii.append(ascii_art)
 

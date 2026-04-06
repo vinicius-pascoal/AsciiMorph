@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ControlsPanelProps = {
   width: number;
@@ -57,6 +57,8 @@ export type CustomStylePreset = {
   invert: boolean;
   whatsappFormat: boolean;
 };
+
+type AdvancedTab = "mosaic" | "duotone" | "layers";
 
 const STYLE_PRESETS = {
   terminal: {
@@ -137,6 +139,21 @@ export function ControlsPanel({
 }: ControlsPanelProps) {
   const [presetName, setPresetName] = useState("");
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [activeAdvancedTab, setActiveAdvancedTab] = useState<AdvancedTab>("mosaic");
+
+  useEffect(() => {
+    if (mosaicMode) {
+      setActiveAdvancedTab("mosaic");
+      return;
+    }
+    if (duotoneMode) {
+      setActiveAdvancedTab("duotone");
+      return;
+    }
+    if (layersMode) {
+      setActiveAdvancedTab("layers");
+    }
+  }, [mosaicMode, duotoneMode, layersMode]);
 
   const selectedBasePreset = Object.entries(STYLE_PRESETS).find(([, preset]) => {
     return (
@@ -355,167 +372,212 @@ export function ControlsPanel({
           <h3 className="text-sm font-semibold text-ink">Modos avancados</h3>
           <p className="mt-1 text-xs text-slate-500">Apenas um modo avancado pode ficar ativo por vez.</p>
 
-          <div className="mt-3 space-y-3">
-            <div className={`rounded-xl border p-3 ${mosaicMode ? "border-accent bg-white" : "border-slate-200 bg-white"}`}>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={mosaicMode}
-                  onChange={(event) => onMosaicModeChange(event.target.checked)}
-                  disabled={duotoneMode || layersMode}
-                />
-                <span className="text-sm font-medium">Mosaico</span>
-              </label>
-              {mosaicMode ? (
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Blocos no eixo X ({mosaicBlocksX})</span>
-                    <input
-                      type="range"
-                      min={1}
-                      max={8}
-                      value={mosaicBlocksX}
-                      onChange={(event) => onMosaicBlocksXChange(Number(event.target.value))}
-                    />
-                  </label>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveAdvancedTab("mosaic")}
+              className={`rounded-lg border px-2 py-2 text-xs font-medium ${activeAdvancedTab === "mosaic" ? "border-accent bg-white text-ink" : "border-slate-300 bg-slate-100 text-slate-600"}`}
+            >
+              Mosaico
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveAdvancedTab("duotone")}
+              className={`rounded-lg border px-2 py-2 text-xs font-medium ${activeAdvancedTab === "duotone" ? "border-accent bg-white text-ink" : "border-slate-300 bg-slate-100 text-slate-600"}`}
+            >
+              Duotone
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveAdvancedTab("layers")}
+              className={`rounded-lg border px-2 py-2 text-xs font-medium ${activeAdvancedTab === "layers" ? "border-accent bg-white text-ink" : "border-slate-300 bg-slate-100 text-slate-600"}`}
+            >
+              Layers
+            </button>
+          </div>
 
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Blocos no eixo Y ({mosaicBlocksY})</span>
-                    <input
-                      type="range"
-                      min={1}
-                      max={8}
-                      value={mosaicBlocksY}
-                      onChange={(event) => onMosaicBlocksYChange(Number(event.target.value))}
-                    />
-                  </label>
+          <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3">
+            {activeAdvancedTab === "mosaic" ? (
+              <>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={mosaicMode}
+                    onChange={(event) => {
+                      if (event.target.checked) {
+                        setActiveAdvancedTab("mosaic");
+                      }
+                      onMosaicModeChange(event.target.checked);
+                    }}
+                    disabled={duotoneMode || layersMode}
+                  />
+                  <span className="text-sm font-medium">Mosaico</span>
+                </label>
+                {mosaicMode ? (
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Blocos no eixo X ({mosaicBlocksX})</span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={8}
+                        value={mosaicBlocksX}
+                        onChange={(event) => onMosaicBlocksXChange(Number(event.target.value))}
+                      />
+                    </label>
 
-                  <label className="flex flex-col gap-2 md:col-span-2">
-                    <span className="text-sm font-medium">Charsets do mosaico (separe com |)</span>
-                    <input
-                      value={mosaicCharsets}
-                      onChange={(event) => onMosaicCharsetsChange(event.target.value)}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-                      placeholder="@%#*+=-:. | @#*:. | #@O=+|:. "
-                    />
-                    <span className="text-xs text-slate-500">Se vazio, o charset principal sera reaplicado em todos os blocos.</span>
-                  </label>
-                </div>
-              ) : null}
-            </div>
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Blocos no eixo Y ({mosaicBlocksY})</span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={8}
+                        value={mosaicBlocksY}
+                        onChange={(event) => onMosaicBlocksYChange(Number(event.target.value))}
+                      />
+                    </label>
 
-            <div className={`rounded-xl border p-3 ${duotoneMode ? "border-accent bg-white" : "border-slate-200 bg-white"}`}>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={duotoneMode}
-                  onChange={(event) => onDuotoneModeChange(event.target.checked)}
-                  disabled={mosaicMode || layersMode}
-                />
-                <span className="text-sm font-medium">Duotone</span>
-              </label>
-              {duotoneMode ? (
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <label className="flex flex-col gap-2 md:col-span-2">
-                    <span className="text-sm font-medium">Limiar duotone ({duotoneThreshold})</span>
-                    <input
-                      type="range"
-                      min={1}
-                      max={254}
-                      value={duotoneThreshold}
-                      onChange={(event) => onDuotoneThresholdChange(Number(event.target.value))}
-                    />
-                  </label>
+                    <label className="flex flex-col gap-2 md:col-span-2">
+                      <span className="text-sm font-medium">Charsets do mosaico (separe com |)</span>
+                      <input
+                        value={mosaicCharsets}
+                        onChange={(event) => onMosaicCharsetsChange(event.target.value)}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                        placeholder="@%#*+=-:. | @#*:. | #@O=+|:. "
+                      />
+                      <span className="text-xs text-slate-500">Se vazio, o charset principal sera reaplicado em todos os blocos.</span>
+                    </label>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
 
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Paleta escura</span>
-                    <input
-                      value={duotoneDarkCharset}
-                      onChange={(event) => onDuotoneDarkCharsetChange(event.target.value)}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-                      placeholder="@#%WM8B$"
-                    />
-                  </label>
+            {activeAdvancedTab === "duotone" ? (
+              <>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={duotoneMode}
+                    onChange={(event) => {
+                      if (event.target.checked) {
+                        setActiveAdvancedTab("duotone");
+                      }
+                      onDuotoneModeChange(event.target.checked);
+                    }}
+                    disabled={mosaicMode || layersMode}
+                  />
+                  <span className="text-sm font-medium">Duotone</span>
+                </label>
+                {duotoneMode ? (
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <label className="flex flex-col gap-2 md:col-span-2">
+                      <span className="text-sm font-medium">Limiar duotone ({duotoneThreshold})</span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={254}
+                        value={duotoneThreshold}
+                        onChange={(event) => onDuotoneThresholdChange(Number(event.target.value))}
+                      />
+                    </label>
 
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Paleta clara</span>
-                    <input
-                      value={duotoneLightCharset}
-                      onChange={(event) => onDuotoneLightCharsetChange(event.target.value)}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-                      placeholder="+=-:. "
-                    />
-                  </label>
-                </div>
-              ) : null}
-            </div>
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Paleta escura</span>
+                      <input
+                        value={duotoneDarkCharset}
+                        onChange={(event) => onDuotoneDarkCharsetChange(event.target.value)}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                        placeholder="@#%WM8B$"
+                      />
+                    </label>
 
-            <div className={`rounded-xl border p-3 ${layersMode ? "border-accent bg-white" : "border-slate-200 bg-white"}`}>
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={layersMode}
-                  onChange={(event) => onLayersModeChange(event.target.checked)}
-                  disabled={mosaicMode || duotoneMode}
-                />
-                <span className="text-sm font-medium">ASCII Layers</span>
-              </label>
-              {layersMode ? (
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Charset do fundo</span>
-                    <input
-                      value={layersBackgroundCharset}
-                      onChange={(event) => onLayersBackgroundCharsetChange(event.target.value)}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-                      placeholder=" .:-="
-                    />
-                  </label>
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Paleta clara</span>
+                      <input
+                        value={duotoneLightCharset}
+                        onChange={(event) => onDuotoneLightCharsetChange(event.target.value)}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                        placeholder="+=-:. "
+                      />
+                    </label>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
 
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Charset do sujeito</span>
-                    <input
-                      value={layersSubjectCharset}
-                      onChange={(event) => onLayersSubjectCharsetChange(event.target.value)}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-                      placeholder="@#%WM8B$"
-                    />
-                  </label>
+            {activeAdvancedTab === "layers" ? (
+              <>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={layersMode}
+                    onChange={(event) => {
+                      if (event.target.checked) {
+                        setActiveAdvancedTab("layers");
+                      }
+                      onLayersModeChange(event.target.checked);
+                    }}
+                    disabled={mosaicMode || duotoneMode}
+                  />
+                  <span className="text-sm font-medium">ASCII Layers</span>
+                </label>
+                {layersMode ? (
+                  <div className="mt-3 grid gap-3 md:grid-cols-2">
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Charset do fundo</span>
+                      <input
+                        value={layersBackgroundCharset}
+                        onChange={(event) => onLayersBackgroundCharsetChange(event.target.value)}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                        placeholder=" .:-="
+                      />
+                    </label>
 
-                  <label className="flex flex-col gap-2 md:col-span-2">
-                    <span className="text-sm font-medium">Charset do texto</span>
-                    <input
-                      value={layersTextCharset}
-                      onChange={(event) => onLayersTextCharsetChange(event.target.value)}
-                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
-                      placeholder="/\\|()[]{}"
-                    />
-                  </label>
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Charset do sujeito</span>
+                      <input
+                        value={layersSubjectCharset}
+                        onChange={(event) => onLayersSubjectCharsetChange(event.target.value)}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                        placeholder="@#%WM8B$"
+                      />
+                    </label>
 
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Sensibilidade de texto ({layersTextEdgeThreshold})</span>
-                    <input
-                      type="range"
-                      min={1}
-                      max={255}
-                      value={layersTextEdgeThreshold}
-                      onChange={(event) => onLayersTextEdgeThresholdChange(Number(event.target.value))}
-                    />
-                  </label>
+                    <label className="flex flex-col gap-2 md:col-span-2">
+                      <span className="text-sm font-medium">Charset do texto</span>
+                      <input
+                        value={layersTextCharset}
+                        onChange={(event) => onLayersTextCharsetChange(event.target.value)}
+                        className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                        placeholder="/\\|()[]{}"
+                      />
+                    </label>
 
-                  <label className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Separacao sujeito/fundo ({layersSubjectDeltaThreshold})</span>
-                    <input
-                      type="range"
-                      min={1}
-                      max={255}
-                      value={layersSubjectDeltaThreshold}
-                      onChange={(event) => onLayersSubjectDeltaThresholdChange(Number(event.target.value))}
-                    />
-                  </label>
-                </div>
-              ) : null}
-            </div>
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Sensibilidade de texto ({layersTextEdgeThreshold})</span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={255}
+                        value={layersTextEdgeThreshold}
+                        onChange={(event) => onLayersTextEdgeThresholdChange(Number(event.target.value))}
+                      />
+                    </label>
+
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-medium">Separacao sujeito/fundo ({layersSubjectDeltaThreshold})</span>
+                      <input
+                        type="range"
+                        min={1}
+                        max={255}
+                        value={layersSubjectDeltaThreshold}
+                        onChange={(event) => onLayersSubjectDeltaThresholdChange(Number(event.target.value))}
+                      />
+                    </label>
+                  </div>
+                ) : null}
+              </>
+            ) : null}
           </div>
         </div>
 

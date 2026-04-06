@@ -264,7 +264,7 @@ export default function HomePage() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <div className="space-y-6 lg:col-span-2">
+        <div className="space-y-6 lg:sticky lg:top-6 lg:col-span-2 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto lg:pr-1">
           <ControlsPanel
             mode={mode}
             width={width}

@@ -41,7 +41,8 @@ def _normalize_typography_letters(typography_letters: str | None) -> str:
 
 
 def _restrict_charset_to_typography(charset: str, typography_letters: str) -> str:
-    restricted = "".join(char for char in charset if char in typography_letters)
+    restricted = "".join(
+        char for char in charset if char in typography_letters)
     if restricted:
         return restricted
     return typography_letters

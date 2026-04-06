@@ -11,6 +11,7 @@ Aplicacao web para converter imagens e GIFs em arte ASCII, com preview interativ
 - Conversao de imagem estaticas (PNG, JPG, JPEG, WEBP) para ASCII.
 - Conversao de GIF para ASCII frame a frame.
 - Presets de estilo ASCII: Terminal, Bold, Minimal, Retro e WhatsApp.
+- Modo Mosaico para dividir a imagem em blocos com charsets distintos por regiao.
 - Modo Auto Quality para inferir largura, charset e inversao automaticamente.
 - Comparacao visual no preview com divisor arrastavel direto na imagem.
 - Download de saida em PNG ASCII (imagem) e GIF ASCII (animacao).
@@ -102,6 +103,10 @@ Se for publicar, ajuste o `frontend_origin` para o dominio real do frontend.
   - `charset`: string de caracteres para mapeamento
   - `invert`: `true/false`
   - `auto_quality`: `true/false` (quando `true`, ignora `width`, `charset` e `invert` enviados)
+  - `mosaic_mode`: `true/false` (habilita mapeamento por blocos)
+  - `mosaic_blocks_x`: inteiro (1..8)
+  - `mosaic_blocks_y`: inteiro (1..8)
+  - `mosaic_charsets`: string separada por `|` (ex.: `@%#*+=-:. | @#*:. | #@O=+|:. `)
 
 - `POST /api/v1/convert/gif`
   - `file`: `image/gif`
@@ -109,6 +114,10 @@ Se for publicar, ajuste o `frontend_origin` para o dominio real do frontend.
   - `charset`: string de caracteres para mapeamento
   - `invert`: `true/false`
   - `auto_quality`: `true/false` (quando `true`, ignora `width`, `charset` e `invert` enviados)
+  - `mosaic_mode`: `true/false` (habilita mapeamento por blocos)
+  - `mosaic_blocks_x`: inteiro (1..8)
+  - `mosaic_blocks_y`: inteiro (1..8)
+  - `mosaic_charsets`: string separada por `|` (ex.: `@%#*+=-:. | @#*:. | #@O=+|:. `)
 
 ### Render para download de midia
 

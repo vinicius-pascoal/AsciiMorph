@@ -6,6 +6,10 @@ export type ConvertParams = {
   charset: string;
   invert: boolean;
   autoQuality: boolean;
+  mosaicMode: boolean;
+  mosaicBlocksX: number;
+  mosaicBlocksY: number;
+  mosaicCharsets: string;
   mode: ConvertMode;
 };
 
@@ -37,6 +41,10 @@ type DownloadParams = {
   charset: string;
   invert: boolean;
   autoQuality: boolean;
+  mosaicMode: boolean;
+  mosaicBlocksX: number;
+  mosaicBlocksY: number;
+  mosaicCharsets: string;
 };
 
 export async function convertToAscii(params: ConvertParams): Promise<ImageResult | GifResult> {
@@ -46,6 +54,10 @@ export async function convertToAscii(params: ConvertParams): Promise<ImageResult
   formData.append("charset", params.charset);
   formData.append("invert", String(params.invert));
   formData.append("auto_quality", String(params.autoQuality));
+  formData.append("mosaic_mode", String(params.mosaicMode));
+  formData.append("mosaic_blocks_x", String(params.mosaicBlocksX));
+  formData.append("mosaic_blocks_y", String(params.mosaicBlocksY));
+  formData.append("mosaic_charsets", params.mosaicCharsets);
 
   const endpoint = params.mode === "gif" ? "/convert/gif" : "/convert/image";
   const response = await fetch(`${API_BASE}${endpoint}`, {
@@ -68,6 +80,10 @@ function buildConvertFormData(params: DownloadParams): FormData {
   formData.append("charset", params.charset);
   formData.append("invert", String(params.invert));
   formData.append("auto_quality", String(params.autoQuality));
+  formData.append("mosaic_mode", String(params.mosaicMode));
+  formData.append("mosaic_blocks_x", String(params.mosaicBlocksX));
+  formData.append("mosaic_blocks_y", String(params.mosaicBlocksY));
+  formData.append("mosaic_charsets", params.mosaicCharsets);
   return formData;
 }
 

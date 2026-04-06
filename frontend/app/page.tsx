@@ -18,6 +18,10 @@ export default function HomePage() {
   const [charset, setCharset] = useState("@%#*+=-:. ");
   const [invert, setInvert] = useState(false);
   const [autoQuality, setAutoQuality] = useState(false);
+  const [mosaicMode, setMosaicMode] = useState(false);
+  const [mosaicBlocksX, setMosaicBlocksX] = useState(3);
+  const [mosaicBlocksY, setMosaicBlocksY] = useState(3);
+  const [mosaicCharsets, setMosaicCharsets] = useState("@%#*+=-:. | @#*:. | #@O=+|:. ");
   const [whatsappFormat, setWhatsappFormat] = useState(true);
   const [loading, setLoading] = useState(false);
   const [downloadingMedia, setDownloadingMedia] = useState(false);
@@ -97,6 +101,10 @@ export default function HomePage() {
         charset,
         invert,
         autoQuality,
+        mosaicMode,
+        mosaicBlocksX,
+        mosaicBlocksY,
+        mosaicCharsets,
         mode
       });
 
@@ -144,7 +152,11 @@ export default function HomePage() {
           width,
           charset,
           invert,
-          autoQuality
+          autoQuality,
+          mosaicMode,
+          mosaicBlocksX,
+          mosaicBlocksY,
+          mosaicCharsets
         });
         triggerBlobDownload(blob, "ascii-image.png");
       } else {
@@ -153,7 +165,11 @@ export default function HomePage() {
           width,
           charset,
           invert,
-          autoQuality
+          autoQuality,
+          mosaicMode,
+          mosaicBlocksX,
+          mosaicBlocksY,
+          mosaicCharsets
         });
         triggerBlobDownload(blob, "ascii-animation.gif");
       }
@@ -207,6 +223,10 @@ export default function HomePage() {
             charset={charset}
             invert={invert}
             autoQuality={autoQuality}
+            mosaicMode={mosaicMode}
+            mosaicBlocksX={mosaicBlocksX}
+            mosaicBlocksY={mosaicBlocksY}
+            mosaicCharsets={mosaicCharsets}
             whatsappFormat={whatsappFormat}
             customPresets={customPresets}
             onModeChange={(nextMode) => {
@@ -220,6 +240,10 @@ export default function HomePage() {
             onCharsetChange={setCharset}
             onInvertChange={setInvert}
             onAutoQualityChange={setAutoQuality}
+            onMosaicModeChange={setMosaicMode}
+            onMosaicBlocksXChange={setMosaicBlocksX}
+            onMosaicBlocksYChange={setMosaicBlocksY}
+            onMosaicCharsetsChange={setMosaicCharsets}
             onWhatsappFormatChange={setWhatsappFormat}
             onSaveCustomPreset={handleSaveCustomPreset}
             onDeleteCustomPreset={handleDeleteCustomPreset}

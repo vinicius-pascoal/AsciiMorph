@@ -10,6 +10,10 @@ def gif_to_ascii_frames(
     width: int = 120,
     charset: str | None = None,
     invert: bool = False,
+    mosaic_mode: bool = False,
+    mosaic_blocks_x: int = 3,
+    mosaic_blocks_y: int = 3,
+    mosaic_charsets: str | None = None,
     max_frames: int = 120,
 ) -> tuple[list[str], int, int, int]:
     frames_ascii: list[str] = []
@@ -34,6 +38,10 @@ def gif_to_ascii_frames(
             width=width,
             charset=charset,
             invert=invert,
+            mosaic_mode=mosaic_mode,
+            mosaic_blocks_x=mosaic_blocks_x,
+            mosaic_blocks_y=mosaic_blocks_y,
+            mosaic_charsets=mosaic_charsets,
         )
         frames_ascii.append(ascii_art)
 

@@ -23,6 +23,10 @@ async def convert_image_to_ascii(
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
     auto_quality: bool = Form(False),
+    mosaic_mode: bool = Form(False),
+    mosaic_blocks_x: int = Form(3),
+    mosaic_blocks_y: int = Form(3),
+    mosaic_charsets: str = Form(""),
 ) -> ImageAsciiResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -43,6 +47,10 @@ async def convert_image_to_ascii(
             width=width,
             charset=charset,
             invert=invert,
+            mosaic_mode=mosaic_mode,
+            mosaic_blocks_x=mosaic_blocks_x,
+            mosaic_blocks_y=mosaic_blocks_y,
+            mosaic_charsets=mosaic_charsets,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -57,6 +65,10 @@ async def convert_gif_to_ascii(
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
     auto_quality: bool = Form(False),
+    mosaic_mode: bool = Form(False),
+    mosaic_blocks_x: int = Form(3),
+    mosaic_blocks_y: int = Form(3),
+    mosaic_charsets: str = Form(""),
 ) -> GifAsciiResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -78,6 +90,10 @@ async def convert_gif_to_ascii(
             width=width,
             charset=charset,
             invert=invert,
+            mosaic_mode=mosaic_mode,
+            mosaic_blocks_x=mosaic_blocks_x,
+            mosaic_blocks_y=mosaic_blocks_y,
+            mosaic_charsets=mosaic_charsets,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -101,6 +117,10 @@ async def render_image_ascii_png(
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
     auto_quality: bool = Form(False),
+    mosaic_mode: bool = Form(False),
+    mosaic_blocks_x: int = Form(3),
+    mosaic_blocks_y: int = Form(3),
+    mosaic_charsets: str = Form(""),
 ) -> StreamingResponse:
     if file.content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported image format")
@@ -121,6 +141,10 @@ async def render_image_ascii_png(
             width=width,
             charset=charset,
             invert=invert,
+            mosaic_mode=mosaic_mode,
+            mosaic_blocks_x=mosaic_blocks_x,
+            mosaic_blocks_y=mosaic_blocks_y,
+            mosaic_charsets=mosaic_charsets,
         )
         png_bytes = ascii_to_png_bytes(ascii_art)
     except ValueError as error:
@@ -140,6 +164,10 @@ async def render_gif_ascii_gif(
     charset: str = Form("@%#*+=-:. "),
     invert: bool = Form(False),
     auto_quality: bool = Form(False),
+    mosaic_mode: bool = Form(False),
+    mosaic_blocks_x: int = Form(3),
+    mosaic_blocks_y: int = Form(3),
+    mosaic_charsets: str = Form(""),
 ) -> StreamingResponse:
     if file.content_type != ALLOWED_GIF_TYPE:
         raise HTTPException(status_code=400, detail="Unsupported GIF format")
@@ -161,6 +189,10 @@ async def render_gif_ascii_gif(
             width=width,
             charset=charset,
             invert=invert,
+            mosaic_mode=mosaic_mode,
+            mosaic_blocks_x=mosaic_blocks_x,
+            mosaic_blocks_y=mosaic_blocks_y,
+            mosaic_charsets=mosaic_charsets,
             max_frames=120,
         )
         gif_bytes = ascii_frames_to_gif_bytes(frames_ascii, fps)

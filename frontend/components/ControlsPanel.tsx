@@ -183,325 +183,355 @@ export function ControlsPanel({
     closeSaveModal();
   }
 
+  const activeAdvancedMode = mosaicMode ? "Mosaico" : duotoneMode ? "Duotone" : layersMode ? "Layers" : "Nenhum";
+
   return (
     <section className="rounded-2xl bg-panel p-6 shadow-card">
       <h2 className="mb-4 text-lg font-semibold">Controles</h2>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Modo</span>
-          <select
-            value={mode}
-            onChange={(event) => onModeChange(event.target.value as "image" | "gif")}
-            className="rounded-lg border border-slate-300 px-3 py-2"
-          >
-            <option value="image">Imagem</option>
-            <option value="gif">GIF</option>
-          </select>
-        </label>
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-xs">
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Modo: {mode === "gif" ? "GIF" : "Imagem"}</span>
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-700">Avancado: {activeAdvancedMode}</span>
+        {typographyMode ? <span className="rounded-full bg-amber-100 px-3 py-1 text-amber-700">Tipografico ativo</span> : null}
+        {autoQuality ? <span className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">Auto Quality</span> : null}
+      </div>
 
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Largura ({width})</span>
-          <input
-            type="range"
-            min={20}
-            max={300}
-            value={width}
-            onChange={(event) => onWidthChange(Number(event.target.value))}
-            disabled={autoQuality}
-          />
-        </label>
+      <div className="space-y-4">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-semibold text-ink">Base</h3>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Modo</span>
+              <select
+                value={mode}
+                onChange={(event) => onModeChange(event.target.value as "image" | "gif")}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+              >
+                <option value="image">Imagem</option>
+                <option value="gif">GIF</option>
+              </select>
+            </label>
 
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Preset de estilo</span>
-          <select
-            value={selectedPreset}
-            onChange={(event) => {
-              const key = event.target.value;
-              if (key in STYLE_PRESETS) {
-                const preset = STYLE_PRESETS[key as keyof typeof STYLE_PRESETS];
-                onCharsetChange(preset.charset);
-                onInvertChange(preset.invert);
-                onWhatsappFormatChange(preset.whatsappFormat);
-                return;
-              }
+            <label className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Largura ({width})</span>
+              <input
+                type="range"
+                min={20}
+                max={300}
+                value={width}
+                onChange={(event) => onWidthChange(Number(event.target.value))}
+                disabled={autoQuality}
+              />
+            </label>
 
-              if (key.startsWith("custom:")) {
-                const customId = key.replace("custom:", "");
-                const preset = customPresets.find((item) => item.id === customId);
-                if (!preset) {
-                  return;
-                }
-                onCharsetChange(preset.charset);
-                onInvertChange(preset.invert);
-                onWhatsappFormatChange(preset.whatsappFormat);
-              }
-            }}
-            className="rounded-lg border border-slate-300 px-3 py-2"
-          >
-            <option value="terminal">Terminal</option>
-            <option value="bold">Bold</option>
-            <option value="minimal">Minimal</option>
-            <option value="retro">Retro</option>
-            <option value="whatsapp">WhatsApp</option>
-            {customPresets.length > 0
-              ? customPresets.map((preset) => (
-                <option key={preset.id} value={`custom:${preset.id}`}>
-                  {preset.name}
-                </option>
-              ))
-              : null}
-            <option value="custom">Personalizado</option>
-          </select>
-        </label>
+            <label className="flex items-center gap-2 md:col-span-2">
+              <input
+                type="checkbox"
+                checked={autoQuality}
+                onChange={(event) => onAutoQualityChange(event.target.checked)}
+              />
+              <span>Auto Quality (largura, charset e inversao automaticos)</span>
+            </label>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Preset personalizado</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={openSaveModal}
-              className="rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white"
-            >
-              Salvar
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                if (selectedCustomPresetId) {
-                  onDeleteCustomPreset(selectedCustomPresetId);
-                }
-              }}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={!selectedCustomPresetId}
-            >
-              Remover
-            </button>
+            <label className="flex items-center gap-2 md:col-span-2">
+              <input
+                type="checkbox"
+                checked={invert}
+                onChange={(event) => onInvertChange(event.target.checked)}
+                disabled={autoQuality}
+              />
+              <span>Inverter intensidade dos caracteres</span>
+            </label>
           </div>
         </div>
 
-        <label className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Charset</span>
-          <input
-            value={charset}
-            onChange={(event) => onCharsetChange(event.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2"
-            placeholder="@%#*+=-:. "
-            disabled={autoQuality}
-          />
-        </label>
-
-        <label className="flex items-center gap-2 md:col-span-2">
-          <input
-            type="checkbox"
-            checked={typographyMode}
-            onChange={(event) => onTypographyModeChange(event.target.checked)}
-          />
-          <span>Modo tipografico (limitar saida a letras escolhidas)</span>
-        </label>
-
-        {typographyMode ? (
-          <label className="flex flex-col gap-2 md:col-span-2">
-            <span className="text-sm font-medium">Letras permitidas</span>
-            <input
-              value={typographyLetters}
-              onChange={(event) => onTypographyLettersChange(event.target.value)}
-              className="rounded-lg border border-slate-300 px-3 py-2"
-              placeholder="VINI"
-            />
-            <span className="text-xs text-slate-500">
-              Exemplo: VINI faz a arte usar apenas V, I e N.
-            </span>
-          </label>
-        ) : null}
-
-        <label className="flex items-center gap-2 md:col-span-2">
-          <input
-            type="checkbox"
-            checked={autoQuality}
-            onChange={(event) => onAutoQualityChange(event.target.checked)}
-          />
-          <span>Auto Quality (largura, charset e inversão automáticos)</span>
-        </label>
-
-        <label className="flex items-center gap-2 md:col-span-2">
-          <input
-            type="checkbox"
-            checked={invert}
-            onChange={(event) => onInvertChange(event.target.checked)}
-            disabled={autoQuality}
-          />
-          <span>Inverter intensidade dos caracteres</span>
-        </label>
-
-        <label className="flex items-center gap-2 md:col-span-2">
-          <input
-            type="checkbox"
-            checked={mosaicMode}
-            onChange={(event) => onMosaicModeChange(event.target.checked)}
-            disabled={duotoneMode || layersMode}
-          />
-          <span>Modo mosaico (charsets diferentes por bloco)</span>
-        </label>
-
-        {mosaicMode ? (
-          <>
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-semibold text-ink">Estilo</h3>
+          <div className="mt-3 grid gap-4 md:grid-cols-2">
             <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Blocos no eixo X ({mosaicBlocksX})</span>
-              <input
-                type="range"
-                min={1}
-                max={8}
-                value={mosaicBlocksX}
-                onChange={(event) => onMosaicBlocksXChange(Number(event.target.value))}
-              />
+              <span className="text-sm font-medium">Preset de estilo</span>
+              <select
+                value={selectedPreset}
+                onChange={(event) => {
+                  const key = event.target.value;
+                  if (key in STYLE_PRESETS) {
+                    const preset = STYLE_PRESETS[key as keyof typeof STYLE_PRESETS];
+                    onCharsetChange(preset.charset);
+                    onInvertChange(preset.invert);
+                    onWhatsappFormatChange(preset.whatsappFormat);
+                    return;
+                  }
+
+                  if (key.startsWith("custom:")) {
+                    const customId = key.replace("custom:", "");
+                    const preset = customPresets.find((item) => item.id === customId);
+                    if (!preset) {
+                      return;
+                    }
+                    onCharsetChange(preset.charset);
+                    onInvertChange(preset.invert);
+                    onWhatsappFormatChange(preset.whatsappFormat);
+                  }
+                }}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+              >
+                <option value="terminal">Terminal</option>
+                <option value="bold">Bold</option>
+                <option value="minimal">Minimal</option>
+                <option value="retro">Retro</option>
+                <option value="whatsapp">WhatsApp</option>
+                {customPresets.length > 0
+                  ? customPresets.map((preset) => (
+                    <option key={preset.id} value={`custom:${preset.id}`}>
+                      {preset.name}
+                    </option>
+                  ))
+                  : null}
+                <option value="custom">Personalizado</option>
+              </select>
             </label>
 
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Blocos no eixo Y ({mosaicBlocksY})</span>
-              <input
-                type="range"
-                min={1}
-                max={8}
-                value={mosaicBlocksY}
-                onChange={(event) => onMosaicBlocksYChange(Number(event.target.value))}
-              />
-            </label>
+            <div className="flex flex-col gap-2">
+              <span className="text-sm font-medium">Preset personalizado</span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={openSaveModal}
+                  className="rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white"
+                >
+                  Salvar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedCustomPresetId) {
+                      onDeleteCustomPreset(selectedCustomPresetId);
+                    }
+                  }}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={!selectedCustomPresetId}
+                >
+                  Remover
+                </button>
+              </div>
+            </div>
 
             <label className="flex flex-col gap-2 md:col-span-2">
-              <span className="text-sm font-medium">Charsets do mosaico (separe com |)</span>
+              <span className="text-sm font-medium">Charset</span>
               <input
-                value={mosaicCharsets}
-                onChange={(event) => onMosaicCharsetsChange(event.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="@%#*+=-:. | @#*:. | #@O=+|:. "
-              />
-              <span className="text-xs text-slate-500">
-                Se vazio, o charset principal sera reaplicado em todos os blocos.
-              </span>
-            </label>
-          </>
-        ) : null}
-
-        <label className="flex items-center gap-2 md:col-span-2">
-          <input
-            type="checkbox"
-            checked={duotoneMode}
-            onChange={(event) => onDuotoneModeChange(event.target.checked)}
-            disabled={mosaicMode || layersMode}
-          />
-          <span>Duotone ASCII (paletas claro/escuro posterizadas)</span>
-        </label>
-
-        {duotoneMode ? (
-          <>
-            <label className="flex flex-col gap-2 md:col-span-2">
-              <span className="text-sm font-medium">Limiar duotone ({duotoneThreshold})</span>
-              <input
-                type="range"
-                min={1}
-                max={254}
-                value={duotoneThreshold}
-                onChange={(event) => onDuotoneThresholdChange(Number(event.target.value))}
+                value={charset}
+                onChange={(event) => onCharsetChange(event.target.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                placeholder="@%#*+=-:. "
+                disabled={autoQuality}
               />
             </label>
 
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Paleta escura</span>
+            <label className="flex items-center gap-2 md:col-span-2">
               <input
-                value={duotoneDarkCharset}
-                onChange={(event) => onDuotoneDarkCharsetChange(event.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="@#%WM8B$"
+                type="checkbox"
+                checked={typographyMode}
+                onChange={(event) => onTypographyModeChange(event.target.checked)}
               />
+              <span>Modo tipografico (limitar saida a letras escolhidas)</span>
             </label>
 
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Paleta clara</span>
+            {typographyMode ? (
+              <label className="flex flex-col gap-2 md:col-span-2">
+                <span className="text-sm font-medium">Letras permitidas</span>
+                <input
+                  value={typographyLetters}
+                  onChange={(event) => onTypographyLettersChange(event.target.value)}
+                  className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                  placeholder="VINI"
+                />
+                <span className="text-xs text-slate-500">Exemplo: VINI faz a arte usar apenas V, I e N.</span>
+              </label>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-semibold text-ink">Modos avancados</h3>
+          <p className="mt-1 text-xs text-slate-500">Apenas um modo avancado pode ficar ativo por vez.</p>
+
+          <div className="mt-3 space-y-3">
+            <div className={`rounded-xl border p-3 ${mosaicMode ? "border-accent bg-white" : "border-slate-200 bg-white"}`}>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={mosaicMode}
+                  onChange={(event) => onMosaicModeChange(event.target.checked)}
+                  disabled={duotoneMode || layersMode}
+                />
+                <span className="text-sm font-medium">Mosaico</span>
+              </label>
+              {mosaicMode ? (
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Blocos no eixo X ({mosaicBlocksX})</span>
+                    <input
+                      type="range"
+                      min={1}
+                      max={8}
+                      value={mosaicBlocksX}
+                      onChange={(event) => onMosaicBlocksXChange(Number(event.target.value))}
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Blocos no eixo Y ({mosaicBlocksY})</span>
+                    <input
+                      type="range"
+                      min={1}
+                      max={8}
+                      value={mosaicBlocksY}
+                      onChange={(event) => onMosaicBlocksYChange(Number(event.target.value))}
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2 md:col-span-2">
+                    <span className="text-sm font-medium">Charsets do mosaico (separe com |)</span>
+                    <input
+                      value={mosaicCharsets}
+                      onChange={(event) => onMosaicCharsetsChange(event.target.value)}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                      placeholder="@%#*+=-:. | @#*:. | #@O=+|:. "
+                    />
+                    <span className="text-xs text-slate-500">Se vazio, o charset principal sera reaplicado em todos os blocos.</span>
+                  </label>
+                </div>
+              ) : null}
+            </div>
+
+            <div className={`rounded-xl border p-3 ${duotoneMode ? "border-accent bg-white" : "border-slate-200 bg-white"}`}>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={duotoneMode}
+                  onChange={(event) => onDuotoneModeChange(event.target.checked)}
+                  disabled={mosaicMode || layersMode}
+                />
+                <span className="text-sm font-medium">Duotone</span>
+              </label>
+              {duotoneMode ? (
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-2 md:col-span-2">
+                    <span className="text-sm font-medium">Limiar duotone ({duotoneThreshold})</span>
+                    <input
+                      type="range"
+                      min={1}
+                      max={254}
+                      value={duotoneThreshold}
+                      onChange={(event) => onDuotoneThresholdChange(Number(event.target.value))}
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Paleta escura</span>
+                    <input
+                      value={duotoneDarkCharset}
+                      onChange={(event) => onDuotoneDarkCharsetChange(event.target.value)}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                      placeholder="@#%WM8B$"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Paleta clara</span>
+                    <input
+                      value={duotoneLightCharset}
+                      onChange={(event) => onDuotoneLightCharsetChange(event.target.value)}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                      placeholder="+=-:. "
+                    />
+                  </label>
+                </div>
+              ) : null}
+            </div>
+
+            <div className={`rounded-xl border p-3 ${layersMode ? "border-accent bg-white" : "border-slate-200 bg-white"}`}>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={layersMode}
+                  onChange={(event) => onLayersModeChange(event.target.checked)}
+                  disabled={mosaicMode || duotoneMode}
+                />
+                <span className="text-sm font-medium">ASCII Layers</span>
+              </label>
+              {layersMode ? (
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Charset do fundo</span>
+                    <input
+                      value={layersBackgroundCharset}
+                      onChange={(event) => onLayersBackgroundCharsetChange(event.target.value)}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                      placeholder=" .:-="
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Charset do sujeito</span>
+                    <input
+                      value={layersSubjectCharset}
+                      onChange={(event) => onLayersSubjectCharsetChange(event.target.value)}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                      placeholder="@#%WM8B$"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2 md:col-span-2">
+                    <span className="text-sm font-medium">Charset do texto</span>
+                    <input
+                      value={layersTextCharset}
+                      onChange={(event) => onLayersTextCharsetChange(event.target.value)}
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-2"
+                      placeholder="/\\|()[]{}"
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Sensibilidade de texto ({layersTextEdgeThreshold})</span>
+                    <input
+                      type="range"
+                      min={1}
+                      max={255}
+                      value={layersTextEdgeThreshold}
+                      onChange={(event) => onLayersTextEdgeThresholdChange(Number(event.target.value))}
+                    />
+                  </label>
+
+                  <label className="flex flex-col gap-2">
+                    <span className="text-sm font-medium">Separacao sujeito/fundo ({layersSubjectDeltaThreshold})</span>
+                    <input
+                      type="range"
+                      min={1}
+                      max={255}
+                      value={layersSubjectDeltaThreshold}
+                      onChange={(event) => onLayersSubjectDeltaThresholdChange(Number(event.target.value))}
+                    />
+                  </label>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <h3 className="text-sm font-semibold text-ink">Saida</h3>
+          <div className="mt-3">
+            <label className="flex items-center gap-2">
               <input
-                value={duotoneLightCharset}
-                onChange={(event) => onDuotoneLightCharsetChange(event.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="+=-:. "
+                type="checkbox"
+                checked={whatsappFormat}
+                onChange={(event) => onWhatsappFormatChange(event.target.checked)}
               />
+              <span>Formatar saida para WhatsApp (bloco monoespacado)</span>
             </label>
-          </>
-        ) : null}
-
-        <label className="flex items-center gap-2 md:col-span-2">
-          <input
-            type="checkbox"
-            checked={layersMode}
-            onChange={(event) => onLayersModeChange(event.target.checked)}
-            disabled={mosaicMode || duotoneMode}
-          />
-          <span>ASCII Layers (fundo, sujeito e texto com charsets diferentes)</span>
-        </label>
-
-        {layersMode ? (
-          <>
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Charset do fundo</span>
-              <input
-                value={layersBackgroundCharset}
-                onChange={(event) => onLayersBackgroundCharsetChange(event.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2"
-                placeholder=" .:-="
-              />
-            </label>
-
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Charset do sujeito</span>
-              <input
-                value={layersSubjectCharset}
-                onChange={(event) => onLayersSubjectCharsetChange(event.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="@#%WM8B$"
-              />
-            </label>
-
-            <label className="flex flex-col gap-2 md:col-span-2">
-              <span className="text-sm font-medium">Charset do texto</span>
-              <input
-                value={layersTextCharset}
-                onChange={(event) => onLayersTextCharsetChange(event.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2"
-                placeholder="/\\|()[]{}"
-              />
-            </label>
-
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Sensibilidade de texto ({layersTextEdgeThreshold})</span>
-              <input
-                type="range"
-                min={1}
-                max={255}
-                value={layersTextEdgeThreshold}
-                onChange={(event) => onLayersTextEdgeThresholdChange(Number(event.target.value))}
-              />
-            </label>
-
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium">Separacao sujeito/fundo ({layersSubjectDeltaThreshold})</span>
-              <input
-                type="range"
-                min={1}
-                max={255}
-                value={layersSubjectDeltaThreshold}
-                onChange={(event) => onLayersSubjectDeltaThresholdChange(Number(event.target.value))}
-              />
-            </label>
-          </>
-        ) : null}
-
-        <label className="flex items-center gap-2 md:col-span-2">
-          <input
-            type="checkbox"
-            checked={whatsappFormat}
-            onChange={(event) => onWhatsappFormatChange(event.target.checked)}
-          />
-          <span>Formatar saída para WhatsApp (bloco monoespaçado)</span>
-        </label>
+          </div>
+        </div>
       </div>
 
       {isSaveModalOpen ? (

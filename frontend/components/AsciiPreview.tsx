@@ -100,11 +100,11 @@ export function AsciiPreview({
   }
 
   function handleDownload() {
-    if (!outputText) {
+    if (!asciiArt) {
       return;
     }
 
-    const blob = new Blob([outputText], { type: "text/plain;charset=utf-8" });
+    const blob = new Blob([asciiArt], { type: "text/plain;charset=utf-8" });
     const objectUrl = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = objectUrl;
@@ -213,7 +213,7 @@ export function AsciiPreview({
 
   const copyDisabled = !canCopyOrDownloadText;
 
-  const txtDisabled = !canCopyOrDownloadText;
+  const txtDisabled = !asciiArt;
 
   const pngDisabled = !canDownloadPng;
 
